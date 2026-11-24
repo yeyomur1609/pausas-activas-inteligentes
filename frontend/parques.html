@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Parques en Santa Catarina | Pausas Activas Inteligentes</title>
+  <meta name="description" content="Mapa interactivo con Leaflet y OpenStreetMap Overpass API en tiempo real para encontrar parques públicos accesibles y rutas peatonales en Santa Catarina, N.L.">
+  <meta name="theme-color" content="#2e6f65">
+
+  <link rel="canonical" href="https://pausasactivas.edu.mx/parques">
+  <link rel="icon" type="image/svg+xml" href="public/favicon.svg">
+  <link rel="apple-touch-icon" href="public/icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Pausas Activas">
+  <link rel="manifest" href="public/manifest.webmanifest">
+
+  <!-- Leaflet se carga EXCLUSIVAMENTE en la ventana de Parques -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+  <link rel="stylesheet" href="assets/css/variables.css">
+  <link rel="stylesheet" href="assets/css/app.css">
+  <link rel="stylesheet" href="assets/css/accessibility.css">
+</head>
+<body data-initial-view="parques" class="auth-checking">
+  <div id="auth-checking-overlay" class="auth-checking-overlay" role="status" aria-live="polite" aria-label="Verificando sesión">
+    <div class="auth-checking-card">
+      <div class="auth-spinner" aria-hidden="true"></div>
+      <p class="auth-checking-text">Verificando tu sesión…</p>
+    </div>
+  </div>
+
+  <main id="main-content" class="app-main" tabindex="-1">
+    <section class="view-section active" data-view="parques" aria-labelledby="heading-parques">
+      <div class="map-toolbar">
+        <div>
+          <span id="map-status-badge" class="badge badge-info" aria-live="polite">Consultando OpenStreetMap (Overpass API)...</span>
+          <h1 id="heading-parques" class="hero-title" tabindex="-1">Parques y Zonas de Activación Física</h1>
+        </div>
+
+        <form id="form-map-search" class="search-input-group" role="search">
+          <div class="search-field-stack">
+            <label for="input-map-search" class="form-label form-label-compact">Buscar colonia o parque en Santa Catarina</label>
+            <input type="search" id="input-map-search" class="form-input" placeholder="Ej. Las Sombras, Centro...">
+          </div>
+          <button type="submit" class="btn btn-primary">Buscar</button>
+          <button type="button" id="btn-map-geolocate" class="btn btn-secondary" title="Centrar en mi ubicación actual">
+            Mi Ubicación
+          </button>
+        </form>
+      </div>
+
+      <div class="filter-chips-row" role="group" aria-label="Filtrar parques por equipamiento">
+        <button type="button" class="filter-chip active" data-park-filter="todos" aria-pressed="true">Todos los parques</button>
+        <button type="button" class="filter-chip" data-park-filter="accesible" aria-pressed="false">Accesible Silla de Ruedas</button>
+        <button type="button" class="filter-chip" data-park-filter="aparatos_ejercitadores" aria-pressed="false">Ejercitadores</button>
+        <button type="button" class="filter-chip" data-park-filter="barras_calistenia" aria-pressed="false">Calistenia</button>
+        <button type="button" class="filter-chip" data-park-filter="bancas_descanso" aria-pressed="false">Bancas y Sombra</button>
+        <button type="button" class="filter-chip" data-park-filter="favoritos" aria-pressed="false">Mis Favoritos ★</button>
+      </div>
+
+      <div class="map-workspace">
+        <div class="map-canvas-shell">
+          <div id="leaflet-map" class="leaflet-map-frame" role="region" aria-label="Mapa interactivo de parques en Santa Catarina"></div>
+
+          <div class="map-layer-switcher" role="group" aria-label="Cambiar capa del mapa">
+            <button type="button" class="map-layer-btn active" data-map-layer="satellite" aria-pressed="true">
+              🛰️ Satelital
+            </button>
+            <button type="button" class="map-layer-btn" data-map-layer="standard" aria-pressed="false">
+              🗺️ Estándar
+            </button>
+          </div>
+
+          <div id="map-loading-pill" class="map-loading-pill hidden" role="status" aria-live="polite">
+            <span class="map-loading-spinner" aria-hidden="true"></span>
+            <span id="map-loading-pill-text">Buscando parques cercanos…</span>
+          </div>
+        </div>
+
+        <aside class="park-detail-sheet" aria-labelledby="selected-park-name">
+          <div class="park-sheet-handle" aria-hidden="true"></div>
+          <span class="badge badge-info">Parque Seleccionado</span>
+          <h2 id="selected-park-name" class="module-card-title">Cargando parques cercanos desde OpenStreetMap...</h2>
+          <p id="selected-park-address" class="module-card-desc">Esperando coordenadas GPS y resultados en tiempo real de Overpass API.</p>
+          <p id="selected-park-distance" class="stat-label">Distancia calculada con Haversine al recibir resultados OSM.</p>
+          <div id="selected-park-tags" class="filter-chips-row"></div>
+
+          <div class="hero-cta-group">
+            <button type="button" id="btn-park-start-routine" class="btn btn-primary btn-block">Iniciar Rutina en este Parque</button>
+            <button type="button" id="btn-park-draw-route" class="btn btn-secondary btn-block">Trazar Ruta Peatonal en Mapa</button>
+            <button type="button" id="btn-park-log-walk" class="btn btn-accent-outline btn-block">Registrar Caminata Ida y Vuelta</button>
+            <button type="button" id="btn-park-ask-actibot" class="btn btn-secondary btn-block">Preguntar a ActiBot qué hacer aquí</button>
+            <button type="button" id="btn-toggle-favorite-park" class="btn btn-secondary btn-block" aria-pressed="false">Guardar Parque Favorito ☆</button>
+          </div>
+        </aside>
+      </div>
+
+      <ul id="parks-catalog-list" class="park-list-grid" aria-label="Listado de parques disponibles"></ul>
+    </section>
+  </main>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script type="module" src="assets/js/modules/parques.js"></script>
+</body>
+</html>

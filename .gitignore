@@ -1,0 +1,10 @@
+# Ignorar secretos, dependencias, IDE y archivos temporales en la raíz del proyecto
+.vscode/
+backend/.env
+backend/vendor/
+backend/storage/cache/*.json
+!backend/storage/cache/.gitkeep
+!backend/storage/cache/.htaccess
+backend/storage/logs/*.log
+.DS_Store
+Thumbs.db

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Asistente Ergonómico ActiBot | Pausas Activas Inteligentes</title>
+  <meta name="description" content="Conversa con ActiBot IA (Google Gemini) para recibir recomendaciones de ergonomía, pausas activas inclusivas y parques en Santa Catarina.">
+  <meta name="theme-color" content="#2e6f65">
+
+  <link rel="canonical" href="https://pausasactivas.edu.mx/chatbot">
+  <link rel="icon" type="image/svg+xml" href="public/favicon.svg">
+  <link rel="apple-touch-icon" href="public/icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Pausas Activas">
+  <link rel="manifest" href="public/manifest.webmanifest">
+
+  <link rel="stylesheet" href="assets/css/variables.css">
+  <link rel="stylesheet" href="assets/css/app.css">
+  <link rel="stylesheet" href="assets/css/accessibility.css">
+</head>
+<body data-initial-view="chatbot" class="auth-checking">
+  <div id="auth-checking-overlay" class="auth-checking-overlay" role="status" aria-live="polite" aria-label="Verificando sesión">
+    <div class="auth-checking-card">
+      <div class="auth-spinner" aria-hidden="true"></div>
+      <p class="auth-checking-text">Verificando tu sesión…</p>
+    </div>
+  </div>
+
+  <main id="main-content" class="app-main" tabindex="-1">
+    <section class="view-section active" data-view="chatbot" aria-labelledby="heading-chatbot">
+      <div class="chat-container">
+        <header class="chat-header">
+          <div>
+            <h1 id="heading-chatbot" class="module-card-title" tabindex="-1">ActiBot • Especialista en Ergonomía y Parques</h1>
+            <p id="chat-park-context-label" class="stat-label">Contexto activo: Santa Catarina, N.L.</p>
+          </div>
+          <button type="button" id="btn-chat-clear" class="btn btn-secondary btn-sm">Limpiar Chat</button>
+        </header>
+
+        <div id="chat-messages-list" class="chat-messages" role="log" aria-label="Conversación con ActiBot" aria-live="polite">
+          <div class="chat-bubble chat-bubble-assistant">
+            <p>
+              ¡Hola! Soy ActiBot, tu asistente de bienestar ergonómico y activación física en Santa Catarina.
+              ¿Sientes tensión en cuello, espalda o vista cansada, o quieres una rutina adaptada a un parque cercano?
+            </p>
+            <div class="chat-action-links">
+              <a href="rutinas.html" class="btn btn-primary btn-sm">Ir al Generador de Rutinas 🚀</a>
+              <a href="parques.html" class="btn btn-secondary btn-sm">Ver Mapa de Parques 🌳</a>
+              <a href="ajustes.html" class="btn btn-accent-outline btn-sm">Ir a Ajustes ⚙️</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-quick-chips" aria-label="Preguntas rápidas sugeridas">
+          <button type="button" class="chat-chip-btn" data-chat-prompt="Tengo tensión en el cuello y hombros por usar la computadora, ¿qué pausa de 3 minutos me recomiendas?">
+            Dolor de cuello y hombros
+          </button>
+          <button type="button" class="chat-chip-btn" data-chat-prompt="Dame una pausa visual 20-20-20 para descansar los ojos.">
+            Fatiga visual (20-20-20)
+          </button>
+          <button type="button" class="chat-chip-btn" data-chat-prompt="¿Qué ejercicios puedo hacer sentado o en silla de ruedas sin levantarme?">
+            Rutina en silla de ruedas
+          </button>
+          <button type="button" class="chat-chip-btn" data-chat-prompt="¿Qué rutina puedo hacer usando las bancas y andadores de un parque público cercano en Santa Catarina?">
+            Rutina en Parque Cercano
+          </button>
+        </div>
+
+        <form id="form-chatbot" class="chat-input-bar">
+          <div class="search-field-stack">
+            <label for="chat-message-input" class="form-label form-label-compact">Escribe tu consulta para ActiBot</label>
+            <input type="text" id="chat-message-input" class="form-input" placeholder="Ej. Tengo tensión cervical o busco parque accesible..." maxlength="500" required>
+          </div>
+          <button type="submit" id="btn-chat-send" class="btn btn-primary">Enviar</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="assets/js/modules/chatbot.js"></script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+# ARCHIVO: backend/public/.htaccess
+# Punto de entrada público de la API REST (DocumentRoot del backend)
+Options -Indexes -MultiViews
+
+<FilesMatch "(^\.|composer\.(json|lock)$|\.sql$|\.log$|\.md$|\.example$)">
+    Require all denied
+</FilesMatch>
+
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "DENY"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "geolocation=(self), microphone=(), camera=()"
+    <If "%{HTTPS} == 'on' || req('X-Forwarded-Proto') == 'https'">
+        Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    </If>
+    # CSP estricta para respuestas de API (sin 'unsafe-inline')
+    Header always set Content-Security-Policy "default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'"
+</IfModule>
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    # Permitir acceso directo a los endpoints en api/
+    RewriteCond %{REQUEST_FILENAME} -f
+    RewriteRule ^ - [L]
+
+    # Rutas amigables opcionales: /api/auth -> /api/auth.php
+    RewriteCond %{REQUEST_FILENAME}.php -f
+    RewriteRule ^api/([a-zA-Z0-9_-]+)$ api/$1.php [L,QSA]
+</IfModule>

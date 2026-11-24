@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Rutinas Guiadas e Inclusivas | Pausas Activas Inteligentes</title>
+  <meta name="description" content="Generador inteligente de pausas activas en 3 pasos, reproductor guiado en 2 columnas y adaptaciones para silla de ruedas.">
+  <meta name="theme-color" content="#2e6f65">
+
+  <link rel="canonical" href="https://pausasactivas.edu.mx/rutinas">
+  <link rel="icon" type="image/svg+xml" href="public/favicon.svg">
+  <link rel="apple-touch-icon" href="public/icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Pausas Activas">
+  <link rel="manifest" href="public/manifest.webmanifest">
+
+  <link rel="stylesheet" href="assets/css/variables.css">
+  <link rel="stylesheet" href="assets/css/app.css">
+  <link rel="stylesheet" href="assets/css/accessibility.css">
+</head>
+<body data-initial-view="rutinas" class="auth-checking">
+  <div id="auth-checking-overlay" class="auth-checking-overlay" role="status" aria-live="polite" aria-label="Verificando sesión">
+    <div class="auth-checking-card">
+      <div class="auth-spinner" aria-hidden="true"></div>
+      <p class="auth-checking-text">Verificando tu sesión…</p>
+    </div>
+  </div>
+
+  <main id="main-content" class="app-main" tabindex="-1">
+    <section class="view-section active" data-view="rutinas" aria-labelledby="heading-rutinas">
+      <div>
+        <span class="badge badge-info">Ergonomía &amp; Movilidad Inclusiva</span>
+        <h1 id="heading-rutinas" class="hero-title" tabindex="-1">Rutinas de Pausa Activa Guiadas</h1>
+        <p class="hero-description">
+          Configura una pausa a tu medida en 3 pasos (precargada con tus preferencias) o elige una rutina del catálogo.
+          Puedes alternar en cualquier momento el <strong>Modo Sentado / Silla de Ruedas</strong>.
+        </p>
+      </div>
+
+      <div class="card card-elevated generator-card">
+        <div class="module-card-header">
+          <div>
+            <span class="badge badge-info">Motor Inteligente de Recomendación</span>
+            <h2 class="module-card-title">Configurar Pausa Activa Personalizada</h2>
+          </div>
+        </div>
+
+        <form id="form-routine-generator">
+          <div class="generator-grid">
+            <div>
+              <p id="label-gen-category" class="form-label">1. ¿Dónde o en qué actividad estás?</p>
+              <div class="option-pills-group" role="group" aria-labelledby="label-gen-category">
+                <button type="button" class="option-pill-btn active" data-gen-category="computadora" aria-pressed="true">💻 Computadora</button>
+                <button type="button" class="option-pill-btn" data-gen-category="estudio" aria-pressed="false">📚 Estudio / Lectura</button>
+                <button type="button" class="option-pill-btn" data-gen-category="reuniones" aria-pressed="false">🗣️ Reuniones</button>
+                <button type="button" class="option-pill-btn" data-gen-category="parque" aria-pressed="false">🌳 Parque Público</button>
+              </div>
+            </div>
+
+            <div>
+              <p id="label-gen-duration" class="form-label">2. Tiempo disponible</p>
+              <div class="option-pills-group" role="group" aria-labelledby="label-gen-duration">
+                <button type="button" class="option-pill-btn active" data-gen-duration="3" aria-pressed="true">⚡ 3 min (Express)</button>
+                <button type="button" class="option-pill-btn" data-gen-duration="5" aria-pressed="false">⏱️ 5 min (Equilibrada)</button>
+                <button type="button" class="option-pill-btn" data-gen-duration="10" aria-pressed="false">🔋 10 min (Completa)</button>
+              </div>
+            </div>
+
+            <div>
+              <p id="label-gen-need" class="form-label">3. ¿Qué necesitas atender hoy?</p>
+              <div class="option-pills-group" role="group" aria-labelledby="label-gen-need">
+                <button type="button" class="option-pill-btn active" data-gen-need="relajarse" aria-pressed="true">🧘 Aliviar tensión</button>
+                <button type="button" class="option-pill-btn" data-gen-need="moverse" aria-pressed="false">🏃 Activar circulación</button>
+                <button type="button" class="option-pill-btn" data-gen-need="concentrarse" aria-pressed="false">🎯 Enfoque mental</button>
+                <button type="button" class="option-pill-btn" data-gen-need="despejarse" aria-pressed="false">🌿 Descanso visual</button>
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block">Generar y Comenzar Pausa Personalizada</button>
+        </form>
+      </div>
+
+      <div id="routine-live-workspace" class="routine-live-workspace hidden">
+        <div class="card">
+          <span class="badge badge-info">Secuencia Interactiva</span>
+          <h2 class="module-card-title">Mi Rutina de Hoy</h2>
+          <p class="module-card-desc">Selecciona cualquier ejercicio para saltar directamente a ese paso:</p>
+          <ul id="routine-steps-list" class="routine-steps-list"></ul>
+        </div>
+
+        <div id="routine-active-player" class="routine-player-card">
+          <div class="module-card-header">
+            <div>
+              <span id="player-step-counter" class="badge badge-info">Ejercicio 1 de 3</span>
+              <h2 id="player-routine-title" class="module-card-title">Alivio Cervical y Descanso Visual Express</h2>
+            </div>
+            <button type="button" id="btn-player-voice" class="btn btn-secondary btn-sm" aria-pressed="false">
+              Voz Guiada: Desactivada
+            </button>
+          </div>
+
+          <div class="goal-progress-track">
+            <progress id="player-progress-fill" class="csp-progress" max="100" value="0" aria-label="Progreso total de la rutina" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></progress>
+          </div>
+
+          <div class="player-visual-stage">
+            <figure class="lottie-stage-card">
+              <div
+                id="player-lottie-container"
+                class="lottie-animation-canvas"
+                role="img"
+                aria-label="Demostración visual del ejercicio actual"
+              ></div>
+              <figcaption id="player-lottie-status" class="lottie-stage-caption">
+                Guía visual lista • Pulsa Iniciar
+              </figcaption>
+            </figure>
+
+            <div class="timer-circle" role="timer" aria-label="Temporizador del ejercicio actual">
+              <span id="player-timer-digits" class="timer-digits">00:45</span>
+              <span id="player-timer-phase" class="timer-subtext">En curso</span>
+            </div>
+          </div>
+
+          <h3 id="player-exercise-name" class="hero-title">Regla 20-20-20 y Parpadeo Consciente</h3>
+          <p id="player-exercise-instructions" class="hero-description">
+            Dirige la vista a un punto lejano a más de 6 metros y realiza 10 parpadeos lentos y completos.
+          </p>
+
+          <div class="player-controls">
+            <button type="button" id="btn-player-pause" class="btn btn-primary">INICIAR / REANUDAR</button>
+            <button type="button" id="btn-player-next" class="btn btn-secondary">SIGUIENTE</button>
+            <button type="button" id="btn-player-finish" class="btn btn-accent-outline">TERMINAR</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="routine-celebration-box" class="card card-elevated celebration-box hidden" aria-live="polite">
+        <span class="badge badge-success">¡Pausa Activa Completada! 🔔</span>
+        <h2 class="hero-title">¡Excelente trabajo cuidando tu salud postural!</h2>
+        <p id="celebration-summary-text" class="hero-description">
+          Evalúa tu sesión para ajustar tus estadísticas y recomendaciones futuras:
+        </p>
+
+        <div class="eval-sliders-grid">
+          <div class="card">
+            <label for="eval-effort-slider" class="form-label">
+              💪 Nivel de Esfuerzo Percibido: <strong id="eval-effort-label">3 / 5 (Moderado)</strong>
+            </label>
+            <input type="range" id="eval-effort-slider" class="range-slider" min="1" max="5" step="1" value="3">
+            <p class="stat-label">1 = Muy suave • 5 = Intenso</p>
+          </div>
+
+          <div class="card">
+            <label for="eval-utility-slider" class="form-label">
+              ⭐ Utilidad y Alivio Percibido: <strong id="eval-utility-label">5 / 5 (Excelente)</strong>
+            </label>
+            <input type="range" id="eval-utility-slider" class="range-slider" min="1" max="5" step="1" value="5">
+            <p class="stat-label">1 = Poco alivio • 5 = Gran bienestar</p>
+          </div>
+        </div>
+
+        <div class="player-controls">
+          <button type="button" id="btn-save-routine-eval" class="btn btn-primary">Guardar Evaluación en mi Historial</button>
+          <button type="button" class="btn btn-secondary" data-start-routine-id="1">Repetir Pausa Express</button>
+          <a href="parques.html" class="btn btn-accent-outline">Ver Parques Cercanos</a>
+        </div>
+      </div>
+
+      <div id="routines-catalog-container" class="routines-catalog-grid"></div>
+    </section>
+  </main>
+
+  <script src="assets/js/vendor/lottie_light.min.js"></script>
+  <script type="module" src="assets/js/modules/rutinas.js"></script>
+</body>
+</html>

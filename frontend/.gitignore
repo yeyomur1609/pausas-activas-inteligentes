@@ -1,0 +1,4 @@
+# Ignorar archivos temporales del sistema en el Frontend
+.env
+.DS_Store
+Thumbs.db

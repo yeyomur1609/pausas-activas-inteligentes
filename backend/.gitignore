@@ -1,0 +1,10 @@
+# Ignorar secretos, dependencias, IDE y cachés temporales del Backend
+.vscode/
+.env
+/vendor/
+/storage/cache/*.json
+!/storage/cache/.gitkeep
+!/storage/cache/.htaccess
+/storage/logs/*.log
+.DS_Store
+Thumbs.db

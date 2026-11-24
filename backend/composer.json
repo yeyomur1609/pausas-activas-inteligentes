@@ -1,0 +1,27 @@
+{
+  "name": "pausas-activas/backend",
+  "description": "Backend API REST desacoplada para Pausas Activas Inteligentes (PHP 8.2 / Azure SQL PDO SQLSRV / Render Docker / PHPMailer / Gemini API / OSM Cache)",
+  "type": "project",
+  "require": {
+    "php": ">=8.1",
+    "ext-pdo": "*",
+    "ext-curl": "*",
+    "ext-json": "*",
+    "ext-mbstring": "*",
+    "phpmailer/phpmailer": "^7.0"
+  },
+  "suggest": {
+    "ext-pdo_sqlsrv": "Driver PDO oficial de Microsoft para conectar con Azure SQL Database en producción",
+    "ext-pdo_mysql": "Driver PDO opcional para desarrollo local en XAMPP/MySQL"
+  },
+  "autoload": {
+    "psr-4": {
+      "App\\": "src/",
+      "App\\Config\\": "config/"
+    }
+  },
+  "config": {
+    "optimize-autoloader": true,
+    "sort-packages": true
+  }
+}

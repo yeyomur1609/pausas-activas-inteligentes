@@ -1,0 +1,97 @@
+# ARCHIVO: frontend/.htaccess
+# Configuración de seguridad, compresión, caché HTTP y rutas amigables (CSP estricta sin 'unsafe-inline')
+Options -Indexes -MultiViews
+ErrorDocument 404 /404.html
+
+<FilesMatch "(^\.|README\.md$|\.log$|\.sql$|\.env)">
+    Require all denied
+</FilesMatch>
+
+<If "%{REQUEST_URI} =~ m#^/pausas-activas-inteligentes/frontend/#">
+    ErrorDocument 404 /pausas-activas-inteligentes/frontend/404.html
+</If>
+
+# Tipos MIME explícitos para ES Modules, animaciones Lottie JSON y fuentes web modernas
+<IfModule mod_mime.c>
+    AddType application/javascript .js .mjs
+    AddType application/json .json
+    AddType application/manifest+json .webmanifest
+    AddType font/woff2 .woff2
+    AddType image/svg+xml .svg
+</IfModule>
+
+# Compresión Gzip/Deflate para texto, estilos, scripts ES, JSON y SVG
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/css text/xml
+    AddOutputFilterByType DEFLATE application/javascript text/javascript application/json application/manifest+json
+    AddOutputFilterByType DEFLATE image/svg+xml application/xml
+</IfModule>
+
+# Política de caché de navegador por tipo de recurso (mod_expires)
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresDefault "access plus 1 day"
+    ExpiresByType text/html "access plus 0 seconds"
+    ExpiresByType text/css "access plus 0 seconds"
+    ExpiresByType application/javascript "access plus 0 seconds"
+    ExpiresByType text/javascript "access plus 0 seconds"
+    ExpiresByType application/manifest+json "access plus 1 day"
+    ExpiresByType image/svg+xml "access plus 1 month"
+    ExpiresByType image/png "access plus 1 month"
+    ExpiresByType font/woff2 "access plus 1 year"
+</IfModule>
+
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "DENY"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "geolocation=(self), microphone=(), camera=()"
+    <If "%{HTTPS} == 'on'">
+        Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    </If>
+    # Content-Security-Policy endurecida: sin 'unsafe-inline' en script-src ni style-src
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' https://unpkg.com https://accounts.google.com; style-src 'self' https://unpkg.com; img-src 'self' data: https://unpkg.com https://*.tile.openstreetmap.org https://tile.openstreetmap.org https://server.arcgisonline.com; connect-src 'self' https://pausasactivas.edu.mx https://api.pausasactivas.edu.mx https://accounts.google.com https://overpass-api.de https://lz4.overpass-api.de https://overpass.openstreetmap.fr https://overpass.private.coffee https://maps.mail.ru https://nominatim.openstreetmap.org https://router.project-osrm.org; font-src 'self' data:; frame-src https://accounts.google.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+
+    # HTML y Service Worker siempre revalidados
+    <FilesMatch "^(sw\.js|.*\.html)$">
+        Header always set Cache-Control "no-cache, no-store, must-revalidate"
+    </FilesMatch>
+
+    # CSS, ES Modules y animaciones Lottie JSON: revalidación condicional inmediata (ETag/304)
+    <If "%{REQUEST_URI} =~ m#/assets/.*\.(css|js|mjs|json)$#">
+        Header always set Cache-Control "public, max-age=0, must-revalidate"
+    </If>
+
+    # Recursos multimedia, iconos y manifiesto (30 días)
+    <If "%{REQUEST_URI} =~ m#/(assets|public)/.*\.(svg|png|webmanifest)$#">
+        Header always set Cache-Control "public, max-age=2592000"
+    </If>
+
+    # Fuentes WOFF2 inmutables (1 año)
+    <If "%{REQUEST_URI} =~ m#/assets/fonts/.*\.woff2$#">
+        Header always set Cache-Control "public, max-age=31536000, immutable"
+    </If>
+</IfModule>
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Elimina la barra final en rutas limpias (/parques/ -> /parques) para no romper assets relativos
+    RewriteCond %{REQUEST_URI} ^(.+)/$
+    RewriteRule ^(login|parques|rutinas|chatbot|ajustes|legal)/$ %1 [R=301,L]
+
+    # Resuelve assets y archivos public/ cuando ErrorDocument 404 se renderiza en rutas multi-segmento
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^.+?/(assets|public)/(.+)$ $1/$2 [L]
+
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    RewriteRule ^login$ login.html [L,QSA]
+    RewriteRule ^parques$ parques.html [L,QSA]
+    RewriteRule ^rutinas$ rutinas.html [L,QSA]
+    RewriteRule ^chatbot$ chatbot.html [L,QSA]
+    RewriteRule ^ajustes$ ajustes.html [L,QSA]
+    RewriteRule ^legal$ legal.html [L,QSA]
+</IfModule>

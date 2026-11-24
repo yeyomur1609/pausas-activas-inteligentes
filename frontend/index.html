@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Pausas Activas Inteligentes | Bienestar Ergonómico y Parques en Santa Catarina</title>
+  <meta name="description" content="Plataforma web progresiva (PWA) de pausas activas guiadas, ergonomía inclusiva, mapa interactivo de parques públicos en Santa Catarina, N.L. y asistente ActiBot.">
+  <meta name="theme-color" content="#2e6f65">
+
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="es_MX">
+  <meta property="og:title" content="Pausas Activas Inteligentes — Santa Catarina, N.L.">
+  <meta property="og:description" content="Explora parques cercanos, realiza pausas ergonómicas de 3 a 5 minutos con adaptaciones inclusivas y consulta a ActiBot.">
+  <meta property="og:image" content="https://pausasactivas.edu.mx/public/og-cover.png">
+  <meta name="twitter:card" content="summary">
+
+  <link rel="canonical" href="https://pausasactivas.edu.mx/">
+  <link rel="icon" type="image/svg+xml" href="public/favicon.svg">
+  <link rel="apple-touch-icon" href="public/icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Pausas Activas">
+  <link rel="manifest" href="public/manifest.webmanifest">
+
+  <link rel="stylesheet" href="assets/css/variables.css">
+  <link rel="stylesheet" href="assets/css/app.css">
+  <link rel="stylesheet" href="assets/css/accessibility.css">
+</head>
+<body data-initial-view="inicio" class="auth-checking">
+  <div id="auth-checking-overlay" class="auth-checking-overlay" role="status" aria-live="polite" aria-label="Verificando sesión">
+    <div class="auth-checking-card">
+      <div class="auth-spinner" aria-hidden="true"></div>
+      <p class="auth-checking-text">Verificando tu sesión…</p>
+    </div>
+  </div>
+
+  <main id="main-content" class="app-main" tabindex="-1">
+    <section class="view-section active" data-view="inicio" aria-labelledby="heading-inicio">
+      <!-- HERO SECTION CON TEMPORIZADOR INTERACTIVO DE 2 MINUTOS -->
+      <div class="saas-hero-grid">
+        <div class="saas-hero-copy">
+          <span class="badge badge-info">Ergonomía Laboral con IA · Santa Catarina y Equipos Remotos</span>
+          <h1 id="heading-inicio" class="saas-hero-title" tabindex="-1">
+            Recarga tu enfoque frente al escritorio con pausas activas guiadas de 2 minutos.
+          </h1>
+          <p class="saas-hero-subtitle">
+            <strong>Pausas Activas Inteligentes</strong> ayuda a estudiantes y equipos de oficina o trabajo remoto a aliviar la rigidez cervical, la fatiga visual digital y el cansancio postural con guía ergonómica por IA, micro-estiramientos inclusivos y rutas en vivo hacia parques públicos.
+          </p>
+          <div class="hero-cta-group">
+            <button type="button" id="btn-hero-try-60s" class="btn btn-primary">
+              Probar Pausa de 60 Segundos Ahora
+            </button>
+            <a href="rutinas.html" class="btn btn-eucalyptus">
+              Explorar Rutinas Completas
+            </a>
+            <a href="chatbot.html" class="btn btn-secondary">
+              Consultar a ActiBot IA
+            </a>
+          </div>
+          <div class="saas-hero-trust-row" aria-label="Puntos clave de la plataforma">
+            <span>✓ Accesible WCAG 2.2 AA</span>
+            <span>✓ Modo Sentado y Silla de Ruedas</span>
+            <span>✓ Privacidad Total sin Cámara</span>
+          </div>
+        </div>
+
+        <div id="hero-timer-mockup" class="saas-hero-timer-card" role="region" aria-label="Temporizador interactivo de pausa activa de 2 minutos">
+          <div class="saas-mockup-chrome">
+            <span class="saas-chrome-dots">
+              <span class="saas-chrome-dot" aria-hidden="true"></span>
+              <span>Temporizador de Pausa Activa de 2 Minutos</span>
+            </span>
+            <span id="hero-timer-status-badge" class="badge badge-info">Listo • 2:00</span>
+          </div>
+
+          <div class="saas-mockup-mode-pills" role="group" aria-label="Seleccionar flujo de pausa de 2 minutos">
+            <button type="button" class="saas-mini-pill active" data-hero-mode="neck" aria-pressed="true">Cuello y Hombros</button>
+            <button type="button" class="saas-mini-pill" data-hero-mode="mobility" aria-pressed="false">Movilidad en Escritorio</button>
+            <button type="button" class="saas-mini-pill" data-hero-mode="seated" aria-pressed="false">Flujo Sentado</button>
+          </div>
+
+          <div class="saas-dial-stage">
+            <div id="hero-timer-dial" class="saas-dial-ring" role="timer" aria-label="Reloj de cuenta regresiva de 2 minutos">
+              <span id="hero-timer-digits" class="saas-dial-digits">02:00</span>
+              <span id="hero-timer-breath" class="saas-dial-cue">Inhala 4s · Exhala 6s</span>
+            </div>
+          </div>
+
+          <progress id="hero-timer-progress" class="csp-progress saas-progress" max="120" value="0" aria-label="Progreso de la pausa de 2 minutos" aria-valuemin="0" aria-valuemax="120" aria-valuenow="0"></progress>
+
+          <div class="saas-mockup-step-box" aria-live="polite">
+            <span id="hero-timer-step-badge" class="badge badge-info">Paso 1 de 3 • 40s</span>
+            <strong id="hero-timer-step-title">Inclinación Cervical Suave</strong>
+            <p id="hero-timer-step-desc" class="stat-label">
+              Relaja ambos hombros hacia abajo, inclina suavemente tu oído derecho hacia el hombro derecho y respira con calma.
+            </p>
+          </div>
+
+          <div class="saas-mockup-actions">
+            <button type="button" id="btn-hero-timer-toggle" class="btn btn-primary btn-sm">Iniciar Pausa 2:00</button>
+            <button type="button" id="btn-hero-timer-next" class="btn btn-secondary btn-sm">Siguiente Paso →</button>
+            <button type="button" id="btn-hero-timer-reset" class="btn btn-secondary btn-sm">Reiniciar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- BENTO GRID: RECORDATORIOS POSTURALES, MICRO-ESTIRAMIENTOS Y DESCANSO VISUAL -->
+      <section id="bento-features" class="saas-section" aria-labelledby="heading-bento">
+        <div class="saas-section-header">
+          <span class="badge badge-info">Módulos Ergonómicos de la Plataforma</span>
+          <h2 id="heading-bento" class="saas-section-title">Todo lo que necesitas para cuidar tu postura y energía diaria</h2>
+          <p class="saas-section-lead">
+            Recordatorios inteligentes, biomecánica inclusiva de pie o sentado y pausas visuales sin cámaras invasivas ni interrupciones bruscas.
+          </p>
+        </div>
+
+        <div class="saas-bento-grid">
+          <article class="bento-card bento-card-posture">
+            <div class="bento-card-head">
+              <div>
+                <span class="badge badge-info">Recordatorios Posturales Inteligentes</span>
+                <h3 class="module-card-title mt-3">Frecuencias adaptadas a tus bloques de enfoque</h3>
+              </div>
+              <span class="bento-icon-tile" aria-hidden="true">🔔</span>
+            </div>
+            <p class="module-card-desc">
+              Elige avisos suaves cada 30, 45 o 60 minutos. Recibe señales sonoras y visuales discretas para liberar cuello, espalda lumbar y muñecas sin monitoreo por cámara web.
+            </p>
+            <div class="saas-mockup-mode-pills" role="group" aria-label="Previsualizar intervalo de recordatorio">
+              <button type="button" class="saas-mini-pill" data-bento-cadence="30" aria-pressed="false">Cada 30 min</button>
+              <button type="button" class="saas-mini-pill active" data-bento-cadence="45" aria-pressed="true">Cada 45 min</button>
+              <button type="button" class="saas-mini-pill" data-bento-cadence="60" aria-pressed="false">Cada 60 min</button>
+            </div>
+            <div class="bento-nudge-preview" aria-live="polite">
+              <strong id="bento-posture-nudge-title">🔔 Próximo aviso postural suave en 45 min</strong>
+              <p id="bento-posture-nudge-text" class="stat-label">
+                Revisión rápida: relaja la mandíbula, separa los hombros de las orejas y alinea tu cabeza suavemente sobre la columna.
+              </p>
+            </div>
+          </article>
+
+          <article class="bento-card bento-card-stretches">
+            <div class="bento-card-head">
+              <div>
+                <span class="badge badge-info">Micro-Estiramientos Guiados</span>
+                <h3 class="module-card-title mt-3">Flujo de Pie o ♿ Sentado</h3>
+              </div>
+              <span class="bento-icon-tile" aria-hidden="true">🧘</span>
+            </div>
+            <p class="module-card-desc">
+              Alterna al instante entre movilidad de pie y rutinas adaptadas para silla de ruedas o espacio reducido.
+            </p>
+            <div class="saas-mockup-mode-pills" role="group" aria-label="Alternar postura de estiramiento">
+              <button type="button" class="saas-mini-pill active" data-bento-posture="pie" aria-pressed="true">Flujo de Pie</button>
+              <button type="button" class="saas-mini-pill" data-bento-posture="sentado" aria-pressed="false">♿ Sentado / Silla de Ruedas</button>
+            </div>
+            <div id="bento-stretch-list" class="bento-micro-list" aria-live="polite">
+              <div class="bento-micro-row">
+                <span><strong>1. Ajuste Escapular</strong><br><span class="stat-label">Ponte de pie con espalda recta y junta suavemente los omóplatos hacia atrás</span></span>
+                <span class="badge badge-info">40s</span>
+              </div>
+              <div class="bento-micro-row">
+                <span><strong>2. Marcha Activa de Tobillos y Cadera</strong><br><span class="stat-label">Alterna elevaciones talón-punta para activar la circulación frente al escritorio</span></span>
+                <span class="badge badge-info">40s</span>
+              </div>
+            </div>
+            <a href="rutinas.html" class="btn btn-accent-outline btn-sm btn-block">Abrir Biblioteca Completa de Rutinas →</a>
+          </article>
+
+          <article class="bento-card bento-card-eyes">
+            <div class="bento-card-head">
+              <div>
+                <span class="badge badge-info">Alivio de Fatiga Visual · Regla 20-20-20</span>
+                <h3 class="module-card-title mt-3">Recuperación ocular rápida tras sesiones frente a pantalla</h3>
+              </div>
+              <span class="bento-icon-tile" aria-hidden="true">👁️</span>
+            </div>
+            <p class="module-card-desc">
+              Descansa los músculos ciliares cada 20 minutos enfocando la mirada en un punto lejano a 6 metros (20 pies) durante 20 segundos reparadores.
+            </p>
+            <div class="bento-eye-console">
+              <div class="bento-eye-header">
+                <div>
+                  <strong id="bento-eye-digits" class="saas-60s-digits">00:20</strong>
+                  <p id="bento-eye-status" class="stat-label" aria-live="polite">
+                    Listo • Enfoca una ventana o punto lejano y realiza 10 parpadeos lentos.
+                  </p>
+                </div>
+                <button type="button" id="btn-bento-eye-toggle" class="btn btn-eucalyptus btn-sm">Iniciar Descanso Visual 20s</button>
+              </div>
+              <progress id="bento-eye-progress" class="csp-progress saas-progress" max="20" value="0" aria-label="Temporizador de 20 segundos para descanso visual" aria-valuemin="0" aria-valuemax="20" aria-valuenow="0"></progress>
+            </div>
+          </article>
+
+          <article class="bento-card bento-card-platform">
+            <div class="bento-card-head">
+              <div>
+                <span class="badge badge-info">ActiBot Gemini IA y Parques OSM</span>
+                <h3 class="module-card-title mt-3">Asesoría ergonómica personalizada y caminatas cercanas</h3>
+              </div>
+              <span class="bento-icon-tile" aria-hidden="true">🌿</span>
+            </div>
+            <p class="module-card-desc">
+              Describe molestias de cuello, muñecas o necesidades de accesibilidad a <strong>ActiBot</strong> y traza rutas peatonales reales hacia parques públicos de Santa Catarina con OpenStreetMap.
+            </p>
+            <div class="bento-micro-list">
+              <div class="bento-micro-row">
+                <span><strong>ActiBot Gemini IA</strong><br><span class="stat-label">Rutinas personalizadas al instante con soporte de accesibilidad</span></span>
+                <a href="chatbot.html" class="btn btn-secondary btn-sm">Conversar</a>
+              </div>
+              <div class="bento-micro-row">
+                <span><strong>Explorador de Parques en Vivo</strong><br><span class="stat-label">Parques vía Overpass API ordenados por distancia real</span></span>
+                <a href="parques.html" class="btn btn-secondary btn-sm">Explorar</a>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- PAUSA INTERACTIVA DE 60 SEGUNDOS -->
+      <section id="saas-60s-preview" class="saas-60s-section" aria-labelledby="heading-preview-60s">
+        <div class="saas-60s-card">
+          <div class="saas-60s-controls-col">
+            <span class="badge badge-eucalyptus">Pausa Interactiva Instantánea · En tu Navegador</span>
+            <h2 id="heading-preview-60s" class="saas-section-title">Probar Pausa de 60 Segundos Ahora</h2>
+            <p class="saas-section-lead">
+              Elige la zona que sientas más tensa en este momento y sigue tres movimientos suaves de 20 segundos.
+            </p>
+            <div class="saas-mockup-mode-pills" role="group" aria-label="Elegir enfoque de la pausa de 60 segundos">
+              <button type="button" class="saas-mini-pill active" data-preview60-topic="neck" aria-pressed="true">Cuello y Trapecios</button>
+              <button type="button" class="saas-mini-pill" data-preview60-topic="eyes" aria-pressed="false">Vista y Enfoque</button>
+              <button type="button" class="saas-mini-pill" data-preview60-topic="wrists" aria-pressed="false">Muñecas y Espalda</button>
+            </div>
+            <label class="checkbox-consent-row">
+              <input type="checkbox" id="chk-preview-60s-chime" checked>
+              <span class="checkbox-consent-label">Reproducir campana suave de 3 tonos al cambiar de fase</span>
+            </label>
+            <div class="hero-cta-group">
+              <button type="button" id="btn-preview-60s-toggle" class="btn btn-primary">Probar Pausa de 60 Segundos Ahora</button>
+              <button type="button" id="btn-preview-60s-reset" class="btn btn-secondary">Reiniciar 60s</button>
+            </div>
+          </div>
+
+          <div class="saas-60s-player-panel" role="region" aria-label="Reproductor en vivo de pausa de 60 segundos">
+            <div class="saas-60s-top-row">
+              <span id="preview-60s-digits" class="saas-60s-digits" role="timer" aria-label="Cuenta regresiva de 60 segundos">01:00</span>
+              <span id="preview-60s-badge" class="badge badge-info">Fase 1 de 3 • Listo</span>
+            </div>
+            <progress id="preview-60s-progress" class="csp-progress saas-progress" max="60" value="0" aria-label="Progreso de la pausa de 60 segundos" aria-valuemin="0" aria-valuemax="60" aria-valuenow="0"></progress>
+            <div id="preview-60s-phases-list" class="saas-60s-phase-list">
+              <div class="saas-60s-phase-item active">
+                <span><strong>01. Retracción Cervical y Liberación de Trapecio</strong><br><span class="stat-label">Lleva la barbilla suavemente hacia atrás e inclina la cabeza de lado a lado.</span></span>
+                <span class="badge badge-info">20s</span>
+              </div>
+              <div class="saas-60s-phase-item">
+                <span><strong>02. Giros de Hombros y Apertura de Pecho</strong><br><span class="stat-label">Dibuja círculos amplios y lentos hacia atrás con los codos relajados.</span></span>
+                <span class="badge badge-info">20s</span>
+              </div>
+              <div class="saas-60s-phase-item">
+                <span><strong>03. Respiración Restauradora 4-6</strong><br><span class="stat-label">Inhala 4 segundos por la nariz y exhala suavemente durante 6 segundos.</span></span>
+                <span class="badge badge-info">20s</span>
+              </div>
+            </div>
+            <div id="preview-60s-done-box" class="saas-60s-done-box hidden" aria-live="polite">
+              <div>
+                <strong>✓ ¡Pausa de 60 Segundos Completada!</strong>
+                <p class="stat-label">Tu progreso fue sumado a tu meta diaria.</p>
+              </div>
+              <a href="rutinas.html" class="btn btn-primary btn-sm">Ver más Rutinas</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TELEMETRÍA PERSONAL, META DIARIA E HISTORIAL -->
+      <section id="workspace-telemetry-panel" class="saas-telemetry-section" aria-label="Telemetría personal y meta diaria">
+        <div class="saas-section-header">
+          <span class="badge badge-info">Telemetría de tu Espacio Personal</span>
+          <h2 class="saas-section-title">Racha Diaria, Meta de Actividad y Comunidad</h2>
+        </div>
+
+        <div class="stats-grid" aria-label="Métricas de racha y pausas activas">
+          <div class="stat-card">
+            <div class="stat-icon-wrap" aria-hidden="true">🔥</div>
+            <div>
+              <p id="stat-racha-actual" class="stat-value">0 días</p>
+              <p class="stat-label">Racha Actual</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon-wrap" aria-hidden="true">🏆</div>
+            <div>
+              <p id="stat-racha-maxima" class="stat-value">0 días</p>
+              <p class="stat-label">Mejor Racha</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon-wrap" aria-hidden="true">⏱️</div>
+            <div>
+              <p id="stat-total-pausas" class="stat-value">0</p>
+              <p class="stat-label">Pausas Completadas</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon-wrap" aria-hidden="true">⭐</div>
+            <div>
+              <p id="stat-minutos-totales" class="stat-value">0 min</p>
+              <p id="stat-utilidad-promedio" class="stat-label">Tiempo Activo • Utilidad 5.0★</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card card-elevated daily-goal-card" aria-label="Progreso de meta diaria de bienestar">
+          <div class="module-card-header">
+            <div>
+              <span id="daily-goal-badge" class="badge badge-info">Meta Diaria • 0% completado hoy</span>
+              <h3 class="module-card-title">Meta Diaria de Bienestar Ergonómico</h3>
+              <p id="daily-goal-label" class="module-card-desc">0 de 15 minutos recomendados completados hoy.</p>
+            </div>
+            <a href="rutinas.html" class="btn btn-primary btn-sm">Configurar Pausa</a>
+          </div>
+          <div class="goal-progress-track">
+            <progress id="daily-goal-fill" class="csp-progress saas-progress" max="100" value="0" aria-label="Progreso hacia tu meta diaria" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></progress>
+          </div>
+        </div>
+
+        <div class="feed-history-grid">
+          <article class="card">
+            <div class="module-card-header">
+              <div>
+                <span class="badge badge-info">Progreso Personal</span>
+                <h3 class="module-card-title">Historial de Pausas Completadas</h3>
+              </div>
+              <button type="button" id="btn-export-csv-home" class="btn btn-secondary btn-sm">Exportar CSV</button>
+            </div>
+            <div id="user-history-list" class="history-list" aria-live="polite">
+              <div class="history-item-row">
+                <div>
+                  <strong>Cargando historial…</strong>
+                  <p class="stat-label">Sincronizando tus pausas activas registradas.</p>
+                </div>
+                <span class="badge badge-info">En vivo</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="module-card-header">
+              <div>
+                <span class="badge badge-info">Comunidad Activa</span>
+                <h3 class="module-card-title">Actividad Reciente en Santa Catarina</h3>
+              </div>
+            </div>
+            <div id="community-feed-list" class="community-feed-list" aria-live="polite">
+              <div class="history-item-row">
+                <div>
+                  <strong>Cargando comunidad…</strong>
+                  <p class="stat-label">Sincronizando actividad reciente en Santa Catarina, N.L.</p>
+                </div>
+                <span class="badge badge-info">En vivo</span>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script type="module" src="assets/js/modules/inicio.js"></script>
+</body>
+</html>

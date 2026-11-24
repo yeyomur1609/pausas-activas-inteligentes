@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>404 Página no encontrada | Pausas Activas Inteligentes</title>
+  <meta name="description" content="La página solicitada no existe. Regresa al inicio de Pausas Activas Inteligentes para continuar con tus rutinas y explorar parques en Santa Catarina.">
+  <meta name="theme-color" content="#2e6f65">
+  <link rel="icon" type="image/svg+xml" href="public/favicon.svg">
+  <link rel="apple-touch-icon" href="public/icon-192.png">
+  <link rel="manifest" href="public/manifest.webmanifest">
+  <link rel="stylesheet" href="assets/css/variables.css">
+  <link rel="stylesheet" href="assets/css/app.css">
+  <link rel="stylesheet" href="assets/css/accessibility.css">
+</head>
+<body data-initial-view="404">
+  <a href="#main-content" class="skip-link">Saltar al contenido principal</a>
+  <main id="main-content" class="app-main" tabindex="-1">
+    <section class="hero-banner" aria-labelledby="heading-404">
+      <div>
+        <a href="index.html" class="auth-gate-brand brand-link mb-4" aria-label="Volver al inicio de Pausas Activas Inteligentes">
+          <div class="brand-logo" aria-hidden="true">
+            <img src="public/logo.svg" alt="" class="brand-logo-img">
+          </div>
+          <div>
+            <p class="brand-title">Pausas Activas Inteligentes</p>
+            <p class="brand-subtitle">Bienestar &amp; Parques</p>
+          </div>
+        </a>
+        <span class="badge badge-warning">Error 404 • Ruta no encontrada</span>
+        <h1 id="heading-404" class="hero-title" tabindex="-1">Parece que tomaste un sendero fuera del parque</h1>
+        <p class="hero-description">
+          La dirección que intentaste abrir no existe o fue movida. Aprovecha para respirar profundo durante 4 segundos
+          y regresa a la plataforma principal.
+        </p>
+        <div class="hero-cta-group">
+          <a href="./" class="btn btn-primary">Volver al Inicio</a>
+          <a href="parques.html" class="btn btn-secondary">Ver Mapa de Parques</a>
+          <a href="rutinas.html" class="btn btn-accent-outline">Iniciar Pausa Activa</a>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer class="app-footer" aria-label="Información institucional y accesibilidad">
+    <p>Pausas Activas Inteligentes · Estándar WCAG 2.2 AA · Santa Catarina, Nuevo León</p>
+    <div class="app-footer-links">
+      <a href="legal.html">Aviso de Privacidad y Descargo Médico</a>
+      <button type="button" id="btn-footer-open-a11y" class="btn btn-secondary btn-sm">Panel de Accesibilidad</button>
+    </div>
+  </footer>
+
+  <!-- Widget Flotante Discreto de Accesibilidad Universal (WCAG 2.2 AA) -->
+  <aside id="a11y-widget-root" class="a11y-floating-widget" aria-label="Widget de Accesibilidad Universal">
+    <div id="a11y-widget-panel" class="a11y-widget-panel hidden" role="dialog" aria-modal="false" aria-labelledby="a11y-widget-title">
+      <header class="a11y-widget-header">
+        <h2 id="a11y-widget-title" class="a11y-widget-title">Accesibilidad Universal</h2>
+        <button type="button" id="btn-close-a11y-widget" class="btn btn-secondary btn-sm" aria-label="Cerrar panel de accesibilidad">✕</button>
+      </header>
+      <div class="a11y-widget-group">
+        <span id="a11y-widget-font-label" class="a11y-widget-group-label">Tamaño de fuente</span>
+        <div class="a11y-font-step-group" role="group" aria-labelledby="a11y-widget-font-label">
+          <button type="button" class="a11y-font-step-btn" data-a11y-font-size="normal" aria-pressed="true">A 100%</button>
+          <button type="button" class="a11y-font-step-btn" data-a11y-font-size="grande" aria-pressed="false">A+ 115%</button>
+          <button type="button" class="a11y-font-step-btn" data-a11y-font-size="muy_grande" aria-pressed="false">A++ 130%</button>
+        </div>
+      </div>
+      <div class="a11y-switch-list" role="group" aria-label="Opciones visuales y de movimiento">
+        <button type="button" id="widget-switch-contrast" class="a11y-switch-btn" role="switch" aria-checked="false" data-a11y-toggle="alto_contraste">
+          <span>Modo de alto contraste</span>
+          <span class="a11y-switch-badge" aria-hidden="true">No</span>
+        </button>
+        <button type="button" id="widget-switch-readable" class="a11y-switch-btn" role="switch" aria-checked="false" data-a11y-toggle="fuente_legible">
+          <span>Tipografía de alta legibilidad</span>
+          <span class="a11y-switch-badge" aria-hidden="true">No</span>
+        </button>
+        <button type="button" id="widget-switch-underline" class="a11y-switch-btn" role="switch" aria-checked="false" data-a11y-toggle="subrayar_enlaces">
+          <span>Subrayar enlaces</span>
+          <span class="a11y-switch-badge" aria-hidden="true">No</span>
+        </button>
+        <button type="button" id="widget-switch-motion" class="a11y-switch-btn" role="switch" aria-checked="false" data-a11y-toggle="reducir_movimiento">
+          <span>Pausar animaciones</span>
+          <span class="a11y-switch-badge" aria-hidden="true">No</span>
+        </button>
+        <button type="button" id="widget-switch-theme" class="a11y-switch-btn" role="switch" aria-checked="true" data-a11y-toggle="tema_claro">
+          <span>Tema claro (#F8FAFC)</span>
+          <span class="a11y-switch-badge" aria-hidden="true">Sí</span>
+        </button>
+        <button type="button" id="widget-switch-seated" class="a11y-switch-btn" role="switch" aria-checked="false" data-a11y-toggle="modo_sentado">
+          <span>Modo sentado / silla</span>
+          <span class="a11y-switch-badge" aria-hidden="true">No</span>
+        </button>
+      </div>
+      <div class="a11y-widget-footer">
+        <button type="button" id="btn-a11y-widget-reset" class="btn btn-secondary btn-sm btn-block">Restablecer valores por defecto</button>
+      </div>
+    </div>
+    <button type="button" id="btn-a11y-widget-toggle" class="a11y-fab-btn" aria-expanded="false" aria-controls="a11y-widget-panel" aria-label="Abrir panel de accesibilidad universal">
+      <span aria-hidden="true">♿</span>
+      <span>Accesibilidad</span>
+    </button>
+  </aside>
+
+  <div id="a11y-live-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+  <div id="app-toast" class="toast-notification toast-info hidden" role="status" aria-live="polite" aria-atomic="true"></div>
+  <script type="module" src="assets/js/modules/layout.js"></script>
+</body>
+</html>

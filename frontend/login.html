@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Iniciar Sesión | Pausas Activas Inteligentes</title>
+  <meta name="description" content="Inicia sesión o crea tu cuenta en Pausas Activas Inteligentes para acceder a tus rutinas ergonómicas, parques públicos de Santa Catarina y ActiBot.">
+  <meta name="theme-color" content="#2e6f65">
+
+  <link rel="canonical" href="https://pausasactivas.edu.mx/login">
+  <link rel="icon" type="image/svg+xml" href="public/favicon.svg">
+  <link rel="apple-touch-icon" href="public/icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Pausas Activas">
+  <link rel="manifest" href="public/manifest.webmanifest">
+
+  <link rel="stylesheet" href="assets/css/variables.css">
+  <link rel="stylesheet" href="assets/css/app.css">
+  <link rel="stylesheet" href="assets/css/accessibility.css">
+</head>
+<body data-initial-view="login">
+  <a href="#auth-card-title" class="skip-link">Saltar al formulario de acceso</a>
+
+  <header class="login-topbar" aria-label="Herramientas rápidas y tema visual">
+    <div class="login-topbar-inner">
+      <a href="index.html" class="brand-box brand-link" aria-label="Volver al inicio de Pausas Activas Inteligentes">
+        <div class="brand-logo" aria-hidden="true">
+          <img src="public/logo.svg" alt="" class="brand-logo-img">
+        </div>
+        <div>
+          <p class="brand-title">Pausas Activas Inteligentes</p>
+          <p class="brand-subtitle">Bienestar Ergonómico &amp; Parques</p>
+        </div>
+      </a>
+
+      <div class="login-topbar-actions">
+        <a href="legal.html" class="login-topbar-link">Aviso Legal</a>
+        <button type="button" id="a11y-btn-theme" class="a11y-pill-btn" aria-pressed="true" title="Alternar entre Modo Claro y Modo Oscuro">
+          ☀️ Modo Claro
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main-content" class="login-page-main" tabindex="-1">
+    <div class="login-page-grid">
+      <!-- Columna 1: Panel de Marca Minimalista -->
+      <section class="login-brand-panel" aria-labelledby="login-brand-heading">
+        <div class="login-brand-top">
+          <span class="badge badge-info">Plataforma Segura · WCAG 2.2 AA</span>
+          <h1 id="login-brand-heading" class="login-brand-title">
+            Tu espacio personal de pausas activas y bienestar ergonómico
+          </h1>
+          <p class="login-brand-desc">
+            Accede a micro-estiramientos guiados de 2 a 5 minutos, explora parques públicos accesibles en Santa Catarina, Nuevo León y conversa con ActiBot.
+          </p>
+        </div>
+
+        <ul class="login-feature-list" aria-label="Beneficios incluidos en tu cuenta">
+          <li class="login-feature-item">
+            <span class="badge badge-success">01 · Ergonomía</span>
+            <p class="module-card-desc">
+              Rutinas adaptadas de pie o en silla de ruedas con temporizador guiado y alertas sonoras suaves.
+            </p>
+          </li>
+          <li class="login-feature-item">
+            <span class="badge badge-info">02 · Mapa Local</span>
+            <p class="module-card-desc">
+              Geolocalización en vivo de parques y rutas peatonales seguras en Santa Catarina, N.L.
+            </p>
+          </li>
+          <li class="login-feature-item">
+            <span class="badge badge-info">03 · ActiBot AI</span>
+            <p class="module-card-desc">
+              Asistente ergonómico especializado para cuello, espalda, fatiga visual y movilidad inclusiva.
+            </p>
+          </li>
+        </ul>
+
+        <p class="login-brand-footnote">
+          Protección de sesión segura con verificación en 7 días, enlace mágico sin contraseña y control total de tus preferencias de accesibilidad.
+        </p>
+      </section>
+
+      <!-- Columna 2: Tarjeta de Autenticación Centrada -->
+      <section class="login-form-card" aria-labelledby="auth-card-title">
+        <div class="login-card-header">
+          <h2 id="auth-card-title" class="module-card-title" tabindex="-1">Accede a tu cuenta</h2>
+          <p class="auth-gate-subtitle">
+            Inicia sesión, crea tu cuenta nueva o solicita un enlace mágico de un solo clic.
+          </p>
+        </div>
+
+        <div class="auth-tabs" role="tablist" aria-label="Opciones de acceso">
+          <button type="button" id="auth-tab-login" class="auth-tab-btn active" data-auth-tab="login" role="tab" aria-selected="true" aria-controls="auth-panel-login">Iniciar Sesión</button>
+          <button type="button" id="auth-tab-registro" class="auth-tab-btn" data-auth-tab="registro" role="tab" aria-selected="false" aria-controls="auth-panel-registro">Crear Cuenta</button>
+          <button type="button" id="auth-tab-magic_link" class="auth-tab-btn" data-auth-tab="magic_link" role="tab" aria-selected="false" aria-controls="auth-panel-magic_link">Enlace Mágico</button>
+        </div>
+
+        <!-- Panel 1: Login -->
+        <div id="auth-panel-login" data-auth-panel="login" role="tabpanel" aria-labelledby="auth-tab-login">
+          <form id="form-auth-login">
+            <div class="form-group">
+              <label for="login-email" class="form-label">Correo electrónico</label>
+              <input type="email" id="login-email" class="form-input" placeholder="tu@correo.edu.mx" required autocomplete="email">
+            </div>
+            <div class="form-group">
+              <label for="login-password" class="form-label">Contraseña</label>
+              <input type="password" id="login-password" class="form-input" placeholder="••••••••" required autocomplete="current-password">
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Entrar a mi Cuenta</button>
+          </form>
+          <div class="player-controls">
+            <button type="button" class="btn btn-secondary btn-sm" data-auth-tab="recuperar_solicitar">
+              ¿Olvidaste tu contraseña?
+            </button>
+            <button type="button" class="btn btn-accent-outline btn-sm" data-auth-tab="verificar_email">
+              Tengo un código OTP
+            </button>
+          </div>
+          <p class="auth-legal-footer">
+            <a href="legal.html" class="auth-legal-link">Aviso de Privacidad · Descargo Médico</a>
+          </p>
+        </div>
+
+        <!-- Panel 2: Registro -->
+        <div id="auth-panel-registro" data-auth-panel="registro" role="tabpanel" aria-labelledby="auth-tab-registro" class="hidden">
+          <form id="form-auth-register">
+            <div class="form-group">
+              <label for="reg-nombre" class="form-label">Nombre completo o alias</label>
+              <input type="text" id="reg-nombre" class="form-input" placeholder="Ej. Ana Sofía Garza" required minlength="2" maxlength="100" autocomplete="name">
+            </div>
+            <div class="form-group">
+              <label for="reg-email" class="form-label">Correo electrónico real (tendrás 7 días para confirmarlo)</label>
+              <input type="email" id="reg-email" class="form-input" placeholder="tu@correo.com" required autocomplete="email">
+            </div>
+            <div class="form-group">
+              <label for="reg-carrera" class="form-label">Ocupación o actividad principal</label>
+              <select id="reg-carrera" class="form-select">
+                <option value="estudiante">Estudiante</option>
+                <option value="trabajador_oficina">Trabajador de Oficina / Remoto</option>
+                <option value="docente">Docente / Investigador</option>
+                <option value="personal_administrativo">Personal Administrativo</option>
+                <option value="operativo">Personal Operativo / Planta</option>
+                <option value="ambos">Estudiante y Trabajador</option>
+                <option value="otro">Otro</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="reg-password" class="form-label">Contraseña segura (mín. 8 caracteres, mayúscula, número y símbolo)</label>
+              <input type="password" id="reg-password" class="form-input" required minlength="8" autocomplete="new-password" aria-describedby="reg-password-meter-label">
+              <div class="goal-progress-track" aria-hidden="true">
+                <progress id="reg-password-meter-fill" class="csp-progress meter-weak" max="100" value="0"></progress>
+              </div>
+              <span id="reg-password-meter-label" class="stat-label" aria-live="polite">Seguridad: Ingresa al menos 8 caracteres</span>
+            </div>
+            <div class="form-group">
+              <div class="checkbox-consent-row">
+                <input type="checkbox" id="reg-acepto-privacidad" required aria-describedby="reg-legal-links">
+                <label for="reg-acepto-privacidad" class="checkbox-consent-label">
+                  He leído y acepto la Política de Privacidad, los Términos de Uso y el Descargo Médico.
+                </label>
+              </div>
+              <p id="reg-legal-links" class="auth-consent-links">
+                Consulta el <a href="legal.html" class="auth-legal-link">Aviso de Privacidad (LFPDPPP)</a> y el <a href="legal.html" class="auth-legal-link">Descargo de Responsabilidad Médica</a>.
+              </p>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Crear Cuenta y Entrar Ahora</button>
+          </form>
+        </div>
+
+        <!-- Panel 3: Acceso sin contraseña (Magic Link) -->
+        <div id="auth-panel-magic_link" data-auth-panel="magic_link" role="tabpanel" aria-labelledby="auth-tab-magic_link" class="hidden">
+          <p class="module-card-desc mb-4">
+            Recibe un enlace único en tu correo electrónico para iniciar sesión con un solo clic sin escribir contraseña.
+          </p>
+          <form id="form-auth-magic-link">
+            <div class="form-group">
+              <label for="magic-email" class="form-label">Tu correo electrónico registrado</label>
+              <input type="email" id="magic-email" class="form-input" placeholder="tu@correo.com" required autocomplete="email">
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Enviar Enlace Mágico</button>
+          </form>
+        </div>
+
+        <!-- Panel 4: Verificar Correo OTP -->
+        <div data-auth-panel="verificar_email" class="hidden">
+          <span class="badge badge-info">Verificación de Seguridad</span>
+          <h3 class="module-card-title mt-3">Ingresa tu código de 6 dígitos</h3>
+          <p class="module-card-desc mb-4">
+            Enviamos un código de verificación a tu correo electrónico.
+          </p>
+          <form id="form-auth-verify-otp">
+            <div class="form-group">
+              <label for="otp-email" class="form-label">Correo electrónico</label>
+              <input type="email" id="otp-email" class="form-input" required autocomplete="email">
+            </div>
+            <div class="form-group">
+              <label for="otp-code" class="form-label">Código OTP de 6 dígitos</label>
+              <input type="text" id="otp-code" class="form-input" placeholder="123456" pattern="\d{6}" maxlength="6" inputmode="numeric" required>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Verificar y Confirmar Correo</button>
+          </form>
+          <div class="player-controls">
+            <button type="button" id="btn-resend-otp" class="btn btn-secondary btn-sm">Reenviar código nuevo</button>
+            <button type="button" class="btn btn-secondary btn-sm" data-auth-tab="login">← Volver a Iniciar Sesión</button>
+          </div>
+        </div>
+
+        <!-- Panel 5: Solicitar Recuperación de Contraseña -->
+        <div data-auth-panel="recuperar_solicitar" class="hidden">
+          <h3 class="module-card-title">Recuperar Contraseña</h3>
+          <p class="module-card-desc mb-4">
+            Te enviaremos un código de 6 dígitos para restablecer tu contraseña de forma segura.
+          </p>
+          <form id="form-auth-recover-request">
+            <div class="form-group">
+              <label for="recover-email" class="form-label">Correo electrónico de tu cuenta</label>
+              <input type="email" id="recover-email" class="form-input" required autocomplete="email">
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Enviar Código de Recuperación</button>
+          </form>
+          <div class="player-controls">
+            <button type="button" class="btn btn-secondary btn-sm" data-auth-tab="login">← Volver a Iniciar Sesión</button>
+          </div>
+        </div>
+
+        <!-- Panel 6: Confirmar Recuperación de Contraseña -->
+        <div data-auth-panel="recuperar_confirmar" class="hidden">
+          <h3 class="module-card-title">Definir Nueva Contraseña</h3>
+          <form id="form-auth-recover-confirm">
+            <div class="form-group">
+              <label for="recover-confirm-email" class="form-label">Correo electrónico</label>
+              <input type="email" id="recover-confirm-email" class="form-input" required autocomplete="email">
+            </div>
+            <div class="form-group">
+              <label for="recover-confirm-code" class="form-label">Código de 6 dígitos recibido</label>
+              <input type="text" id="recover-confirm-code" class="form-input" pattern="\d{6}" maxlength="6" inputmode="numeric" required>
+            </div>
+            <div class="form-group">
+              <label for="recover-confirm-password" class="form-label">Nueva contraseña (mín. 8 caracteres, mayúscula, número y símbolo)</label>
+              <input type="password" id="recover-confirm-password" class="form-input" minlength="8" required autocomplete="new-password">
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Guardar Nueva Contraseña</button>
+          </form>
+          <div class="player-controls">
+            <button type="button" class="btn btn-secondary btn-sm" data-auth-tab="login">← Volver a Iniciar Sesión</button>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="login-footer" aria-label="Información institucional y legal">
+    <p>Pausas Activas Inteligentes · Estándar WCAG 2.2 AA · Santa Catarina, Nuevo León</p>
+    <a href="legal.html">Aviso de Privacidad · Descargo Médico</a>
+  </footer>
+
+  <div id="a11y-live-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+  <div id="app-toast" class="toast-notification toast-info hidden" role="status" aria-live="polite" aria-atomic="true"></div>
+
+  <script type="module" src="assets/js/modules/auth.js"></script>
+</body>
+</html>

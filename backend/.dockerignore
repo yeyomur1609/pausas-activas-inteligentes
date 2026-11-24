@@ -1,0 +1,19 @@
+# ARCHIVO: backend/.dockerignore
+# Mantiene ligera la imagen de Docker para Render Free excluyendo secretos, caché local y artefactos innecesarios
+
+.env
+.env.*
+!.env.example
+.git
+.gitignore
+.vscode
+vendor
+storage/cache/*.json
+storage/cache/*.tmp
+storage/logs/*.log
+database/*.sql
+*.md
+*.log
+*.tmp
+Thumbs.db
+.DS_Store

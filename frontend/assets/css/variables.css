@@ -1,0 +1,364 @@
+/* ==========================================================================
+   TIPOGRAFÍAS AUTOALOJADAS (100% OFFLINE PWA + CSP 'self')
+   Fraunces (Display Editorial) + Atkinson Hyperlegible (UI Inclusiva) + IBM Plex Mono (Telemetría)
+   ========================================================================== */
+
+@font-face {
+  font-family: 'Fraunces';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('../fonts/fraunces-latin-ext-600.woff2') format('woff2');
+  unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
+}
+
+@font-face {
+  font-family: 'Fraunces';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('../fonts/fraunces-latin-600.woff2') format('woff2');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+
+@font-face {
+  font-family: 'Fraunces';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../fonts/fraunces-latin-ext-700.woff2') format('woff2');
+  unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
+}
+
+@font-face {
+  font-family: 'Fraunces';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../fonts/fraunces-latin-700.woff2') format('woff2');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+
+@font-face {
+  font-family: 'Atkinson Hyperlegible';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/atkinson-hyperlegible-latin-ext-400.woff2') format('woff2');
+  unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
+}
+
+@font-face {
+  font-family: 'Atkinson Hyperlegible';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/atkinson-hyperlegible-latin-400.woff2') format('woff2');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+
+@font-face {
+  font-family: 'Atkinson Hyperlegible';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../fonts/atkinson-hyperlegible-latin-ext-700.woff2') format('woff2');
+  unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
+}
+
+@font-face {
+  font-family: 'Atkinson Hyperlegible';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../fonts/atkinson-hyperlegible-latin-700.woff2') format('woff2');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('../fonts/ibm-plex-mono-latin-ext-500.woff2') format('woff2');
+  unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
+}
+
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('../fonts/ibm-plex-mono-latin-500.woff2') format('woff2');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../fonts/ibm-plex-mono-latin-ext-700.woff2') format('woff2');
+  unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
+}
+
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../fonts/ibm-plex-mono-latin-700.woff2') format('woff2');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+
+:root {
+  color-scheme: light;
+
+  /* ==========================================================================
+     SAAS PALETTE: REFRESHING EUCALYPTUS & ENERGETIC CORAL (WCAG 2.2 AA VERIFIED)
+     60% Dominant   -> Soft off-white backgrounds & calm breathing space (#F8FAFC)
+     30% Secondary  -> Crisp white bento cards, eucalyptus wash & calming green (#FFFFFF / #E9F3F1 / #2E6F65)
+     10% CTA Accent -> Energetic coral (#F26B50) strictly for Primary CTAs & active focus
+     ========================================================================== */
+
+  /* 60% Color Dominante: Blanco roto suave y aireado */
+  --color-60-bg: #f8fafc;
+  --color-60-bg-subtle: #f1f5f9;
+  --color-60-overlay: rgba(15, 23, 42, 0.54);
+  --color-60-text: #0f172a;
+  --color-60-text-secondary: #334155;
+  --color-60-text-muted: #475569;
+
+  /* 30% Color Secundario & Identidad Eucalipto */
+  --color-eucalyptus: #2e6f65;
+  --color-eucalyptus-deep: #22544d;
+  --color-eucalyptus-ink: #ffffff;
+  --color-eucalyptus-soft: #e9f3f1;
+  --color-eucalyptus-soft-hover: #dbeae7;
+  --color-eucalyptus-border: #b6d0cb;
+
+  --color-30-surface: #ffffff;
+  --color-30-surface-elevated: #e9f3f1;
+  --color-30-surface-hover: #e1efec;
+  --color-30-nav: #ffffff;
+  --color-30-bar: rgba(248, 250, 252, 0.92);
+  --color-30-border: #d5e2df;
+  --color-30-border-strong: #5f7e78;
+  --color-30-text: #0f172a;
+  --color-30-text-muted: #475569;
+  --input-bg: #ffffff;
+
+  /* 10% Color de Acento Coral Energético (Primary CTAs & Live Action Focus) */
+  --color-10-accent: #f26b50;
+  --color-10-accent-deep: #e65e43;
+  --color-10-accent-hover: #fb8067;
+  --color-10-accent-ink: #0f172a;
+  --color-10-accent-text: #2e6f65;
+  --color-link-hover: #22544d;
+  --color-10-coral-text: #a93018;
+  --color-10-accent-soft: #feece8;
+  --color-10-accent-soft-hover: #fcdbd4;
+  --color-10-accent-border: #f26b50;
+  --color-10-focus: #2e6f65;
+  --color-10-focus-halo: #ffffff;
+
+  /* Alias semánticos heredados */
+  --bg-primary: var(--color-60-bg);
+  --bg-secondary: var(--color-60-bg-subtle);
+  --bg-overlay: var(--color-60-overlay);
+  --bar-surface: var(--color-30-bar);
+  --topbar-bg: #eff5f4;
+
+  --surface-primary: var(--color-30-surface);
+  --surface-secondary: var(--color-30-surface-elevated);
+  --surface-hover: var(--color-30-surface-hover);
+  --surface-border: var(--color-30-border);
+  --surface-border-strong: var(--color-30-border-strong);
+  --control-border: var(--color-30-border-strong);
+  --placeholder-color: var(--color-60-text-muted);
+  --focus-ring: var(--color-10-focus);
+  --focus-ring-halo: var(--color-10-focus-halo);
+
+  --accent-primary: var(--color-10-accent);
+  --accent-primary-deep: var(--color-10-accent-deep);
+  --accent-primary-hover: var(--color-10-accent-hover);
+  --accent-ink: var(--color-10-accent-ink);
+  --accent-secondary: var(--color-eucalyptus);
+  --accent-glow: rgba(242, 107, 80, 0.22);
+
+  /* Superficies de estado activo y temporizador */
+  --nav-active-bg: var(--color-eucalyptus-soft);
+  --bottom-nav-active-bg: var(--color-eucalyptus-soft);
+  --chip-text: var(--color-eucalyptus);
+  --chip-hover-bg: var(--color-eucalyptus-soft-hover);
+  --step-active-bg: var(--color-eucalyptus-soft);
+  --pill-active-bg: var(--color-eucalyptus);
+  --avatar-active-bg: var(--color-10-accent-soft);
+  --timer-center-bg: radial-gradient(circle at center, #ffffff 0%, #e9f3f1 92%);
+
+  /* Tipografía de alto contraste sobre #F8FAFC / #FFFFFF */
+  --text-primary: var(--color-60-text);
+  --text-secondary: var(--color-60-text-secondary);
+  --text-muted: var(--color-60-text-muted);
+  --text-inverse: #ffffff;
+
+  /* Estados semánticos WCAG AA */
+  --color-success: #22544d;
+  --color-success-bg: #e2f1ed;
+  --border-success: #5f7e78;
+  --color-warning: #7c3f00;
+  --color-warning-bg: #fbead0;
+  --border-warning: #a86b18;
+  --color-danger: #991b1b;
+  --color-danger-bg: #fee2e2;
+  --color-danger-hover: #fecaca;
+  --border-danger: #b91c1c;
+  --color-info: var(--color-eucalyptus);
+  --color-info-bg: var(--color-eucalyptus-soft);
+  --border-info: var(--color-eucalyptus-border);
+
+  /* Trío tipográfico contextual */
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-sans: 'Atkinson Hyperlegible', Verdana, sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+  --font-scale: 1;
+}
+
+/* Re-evaluado en :root y body para que var(--font-scale) recalcule la escala en cascada */
+:root,
+body {
+  --font-size-xs: calc(0.75rem * var(--font-scale));
+  --font-size-sm: calc(0.875rem * var(--font-scale));
+  --font-size-base: calc(1rem * var(--font-scale));
+  --font-size-lg: calc(1.125rem * var(--font-scale));
+  --font-size-xl: calc(1.25rem * var(--font-scale));
+  --font-size-2xl: calc(1.6rem * var(--font-scale));
+  --font-size-3xl: calc(2rem * var(--font-scale));
+}
+
+:root {
+
+  /* Dimensiones táctiles y geometría arquitectónica en rem (WCAG 2.5.5 >= 2.75rem / 44px y zoom 200%) */
+  --touch-min: 2.75rem;
+  --sidebar-width: 17.5rem;
+  --bottom-nav-height: 4.25rem;
+  --a11y-bar-height: 2.875rem;
+  --radius-sm: 0.375rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 0.875rem;
+  --radius-xl: 1.125rem;
+  --radius-full: 9999px;
+
+  /* Elevación sutil estilo SaaS sobre blanco roto */
+  --shadow-sm: 0 2px 10px rgba(15, 23, 42, 0.05), 0 1px 2px rgba(46, 111, 101, 0.04);
+  --shadow-md: 0 12px 28px rgba(15, 23, 42, 0.08), 0 2px 8px rgba(46, 111, 101, 0.05);
+  --shadow-lg: 0 22px 48px rgba(15, 23, 42, 0.12), 0 6px 18px rgba(46, 111, 101, 0.08);
+  --transition-fast: 160ms cubic-bezier(0.22, 1, 0.36, 1);
+  --transition-normal: 260ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+html:has(body.tema-oscuro) {
+  color-scheme: dark;
+}
+
+/* ==========================================================================
+   MODO OSCURO OPCIONAL (EUCALIPTO NOCTURNO & CORAL)
+   ========================================================================== */
+body.tema-oscuro {
+  color-scheme: dark;
+
+  --color-60-bg: #0f172a;
+  --color-60-bg-subtle: #141e33;
+  --color-60-overlay: rgba(9, 14, 26, 0.88);
+  --color-60-text: #f8fafc;
+  --color-60-text-secondary: #cbd5e1;
+  --color-60-text-muted: #a8b6c8;
+
+  --color-eucalyptus: #49b3a2;
+  --color-eucalyptus-deep: #389788;
+  --color-eucalyptus-ink: #0f172a;
+  --color-eucalyptus-soft: #1d353b;
+  --color-eucalyptus-soft-hover: #244249;
+  --color-eucalyptus-border: #3a756c;
+
+  --color-30-surface: #1e293b;
+  --color-30-surface-elevated: #27354a;
+  --color-30-surface-hover: #31425b;
+  --color-30-nav: #162032;
+  --color-30-bar: rgba(22, 32, 50, 0.94);
+  --color-30-border: rgba(148, 163, 184, 0.28);
+  --color-30-border-strong: #6e819a;
+  --color-30-text: #f8fafc;
+  --color-30-text-muted: #a8b6c8;
+  --input-bg: #0f172a;
+
+  --color-10-accent: #f26b50;
+  --color-10-accent-deep: #e65e43;
+  --color-10-accent-hover: #ff866e;
+  --color-10-accent-ink: #0f172a;
+  --color-10-accent-text: #5eead4;
+  --color-link-hover: #99f6e4;
+  --color-10-coral-text: #ff9c87;
+  --color-10-accent-soft: rgba(242, 107, 80, 0.18);
+  --color-10-accent-soft-hover: rgba(242, 107, 80, 0.26);
+  --color-10-accent-border: #f26b50;
+  --color-10-focus: #ffd166;
+  --color-10-focus-halo: #0f172a;
+
+  --bg-primary: var(--color-60-bg);
+  --bg-secondary: var(--color-60-bg-subtle);
+  --bg-overlay: var(--color-60-overlay);
+  --bar-surface: var(--color-30-bar);
+  --topbar-bg: var(--color-30-nav);
+
+  --surface-primary: var(--color-30-surface);
+  --surface-secondary: var(--color-30-surface-elevated);
+  --surface-hover: var(--color-30-surface-hover);
+  --surface-border: var(--color-30-border);
+  --surface-border-strong: var(--color-30-border-strong);
+  --control-border: var(--color-30-border-strong);
+  --placeholder-color: var(--color-60-text-muted);
+  --focus-ring: var(--color-10-focus);
+  --focus-ring-halo: var(--color-10-focus-halo);
+
+  --accent-primary: var(--color-10-accent);
+  --accent-primary-deep: var(--color-10-accent-deep);
+  --accent-primary-hover: var(--color-10-accent-hover);
+  --accent-ink: var(--color-10-accent-ink);
+  --accent-secondary: var(--color-eucalyptus);
+  --accent-glow: rgba(242, 107, 80, 0.24);
+
+  --nav-active-bg: var(--color-eucalyptus-soft);
+  --bottom-nav-active-bg: var(--color-eucalyptus-soft);
+  --chip-text: var(--color-eucalyptus);
+  --chip-hover-bg: var(--color-eucalyptus-soft-hover);
+  --step-active-bg: var(--color-10-accent-soft);
+  --pill-active-bg: var(--color-eucalyptus);
+  --avatar-active-bg: var(--color-10-accent-soft);
+  --timer-center-bg: radial-gradient(circle at center, #1e293b 0%, #0f172a 92%);
+
+  --text-primary: var(--color-60-text);
+  --text-secondary: var(--color-60-text-secondary);
+  --text-muted: var(--color-60-text-muted);
+  --text-inverse: #0f172a;
+
+  --color-success: #5eead4;
+  --color-success-bg: rgba(46, 111, 101, 0.28);
+  --border-success: rgba(94, 234, 212, 0.56);
+  --color-warning: #fcd34d;
+  --color-warning-bg: rgba(245, 158, 11, 0.16);
+  --border-warning: rgba(252, 211, 77, 0.56);
+  --color-danger: #fca5a5;
+  --color-danger-bg: rgba(239, 68, 68, 0.18);
+  --color-danger-hover: rgba(239, 68, 68, 0.28);
+  --border-danger: rgba(252, 165, 165, 0.62);
+  --color-info: var(--color-eucalyptus);
+  --color-info-bg: var(--color-eucalyptus-soft);
+  --border-info: var(--color-eucalyptus-border);
+
+  --shadow-sm: 0 2px 10px rgba(2, 6, 23, 0.34);
+  --shadow-md: 0 12px 28px rgba(2, 6, 23, 0.48);
+  --shadow-lg: 0 22px 50px rgba(2, 6, 23, 0.68);
+  background-color: var(--color-60-bg);
+  background-image: url('../../public/topo-pattern.svg');
+}

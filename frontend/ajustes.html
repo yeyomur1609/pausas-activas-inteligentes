@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Ajustes, Accesibilidad y Cuenta | Pausas Activas Inteligentes</title>
+  <meta name="description" content="Administra tu perfil, foto, preferencias de accesibilidad WCAG 2.2 AA, recordatorios y seguridad de tu cuenta.">
+  <meta name="theme-color" content="#2e6f65">
+
+  <link rel="canonical" href="https://pausasactivas.edu.mx/ajustes">
+  <link rel="icon" type="image/svg+xml" href="public/favicon.svg">
+  <link rel="apple-touch-icon" href="public/icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Pausas Activas">
+  <link rel="manifest" href="public/manifest.webmanifest">
+
+  <link rel="stylesheet" href="assets/css/variables.css">
+  <link rel="stylesheet" href="assets/css/app.css">
+  <link rel="stylesheet" href="assets/css/accessibility.css">
+</head>
+<body data-initial-view="ajustes" class="auth-checking">
+  <div id="auth-checking-overlay" class="auth-checking-overlay" role="status" aria-live="polite" aria-label="Verificando sesión">
+    <div class="auth-checking-card">
+      <div class="auth-spinner" aria-hidden="true"></div>
+      <p class="auth-checking-text">Verificando tu sesión…</p>
+    </div>
+  </div>
+
+  <main id="main-content" class="app-main" tabindex="-1">
+    <section class="view-section active" data-view="ajustes" aria-labelledby="heading-ajustes">
+      <span class="badge badge-info">Configuración Personalizada</span>
+      <h1 id="heading-ajustes" class="hero-title" tabindex="-1">Ajustes, Accesibilidad y Cuenta</h1>
+
+      <div id="settings-verification-card" class="verify-status-box verified hidden" aria-live="polite">
+        <div id="verify-box-verified">
+          <span class="badge badge-success">✅ Cuenta Verificada</span>
+          <h2 class="module-card-title">Tu correo electrónico está confirmado</h2>
+          <p id="verify-confirmed-email-text" class="module-card-desc">Tu cuenta y tu progreso están respaldados de forma permanente.</p>
+        </div>
+
+        <div id="verify-box-pending" class="hidden">
+          <span class="badge badge-warning">⚠️ Verificación Pendiente</span>
+          <h2 class="module-card-title">Confirma tu correo electrónico</h2>
+          <p id="verify-countdown-text" class="module-card-desc">
+            Tienes 7 días antes de que la cuenta no verificada se elimine automáticamente.
+          </p>
+
+          <div class="hero-cta-group mt-3">
+            <button type="button" id="btn-settings-resend-verify" class="btn btn-primary btn-sm">
+              📨 Reenviar correo de confirmación
+            </button>
+          </div>
+
+          <form id="form-settings-inline-otp" class="search-input-group mt-3">
+            <div class="search-field-stack">
+              <label for="inline-otp-code" class="form-label form-label-compact">Código OTP de 6 dígitos</label>
+              <input type="text" id="inline-otp-code" class="form-input" placeholder="Ej. 123456" pattern="\d{6}" maxlength="6" inputmode="numeric" required>
+            </div>
+            <button type="submit" class="btn btn-secondary btn-sm">Validar Código</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="settings-grid">
+        <div class="card">
+          <h2 class="module-card-title">Apariencia, Accesibilidad y Preferencias</h2>
+          <p class="module-card-desc">Estos ajustes se aplican al instante y se sincronizan con tu perfil.</p>
+
+          <form id="form-settings-a11y">
+            <div class="toggle-row">
+              <label for="pref-tema-claro" class="form-label" id="label-tema-activo">☀️ Modo Claro Activo (Desmarca para Modo Oscuro)</label>
+              <input type="checkbox" id="pref-tema-claro" checked>
+            </div>
+            <div class="toggle-row">
+              <label for="pref-alto-contraste" class="form-label">Modo Alto Contraste (WCAG AAA)</label>
+              <input type="checkbox" id="pref-alto-contraste">
+            </div>
+            <div class="toggle-row">
+              <label for="pref-fuente-legible" class="form-label">Tipografía de alta legibilidad</label>
+              <input type="checkbox" id="pref-fuente-legible">
+            </div>
+            <div class="toggle-row">
+              <label for="pref-subrayar-enlaces" class="form-label">Subrayar todos los enlaces</label>
+              <input type="checkbox" id="pref-subrayar-enlaces">
+            </div>
+            <div class="toggle-row">
+              <label for="pref-modo-sentado" class="form-label">Modo Sentado / Silla de Ruedas por defecto</label>
+              <input type="checkbox" id="pref-modo-sentado">
+            </div>
+            <div class="toggle-row">
+              <label for="pref-reducir-movimiento" class="form-label">Pausar animaciones y movimiento</label>
+              <input type="checkbox" id="pref-reducir-movimiento">
+            </div>
+            <div class="toggle-row">
+              <label for="pref-alertas-sonoras" class="form-label">Acorde sonoro de campana al terminar rutina</label>
+              <input type="checkbox" id="pref-alertas-sonoras" checked>
+            </div>
+            <div class="toggle-row">
+              <label for="pref-chatbot-habilitado" class="form-label">Mostrar botón flotante de ActiBot IA</label>
+              <input type="checkbox" id="pref-chatbot-habilitado" checked>
+            </div>
+
+            <div class="form-group mt-3">
+              <label for="pref-escala-fuente" class="form-label">Tamaño de fuente</label>
+              <select id="pref-escala-fuente" class="form-select">
+                <option value="normal">Normal (100%)</option>
+                <option value="grande">Grande (115%)</option>
+                <option value="muy_grande">Muy Grande (130%)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="pref-frecuencia-min" class="form-label">Recordatorio de pausa activa cada (minutos)</label>
+              <select id="pref-frecuencia-min" class="form-select">
+                <option value="30">Cada 30 minutos</option>
+                <option value="45" selected>Cada 45 minutos</option>
+                <option value="60">Cada 60 minutos</option>
+                <option value="90">Cada 90 minutos</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="pref-ubicacion-defecto" class="form-label">Ubicación / Actividad por defecto en Generador</label>
+              <select id="pref-ubicacion-defecto" class="form-select">
+                <option value="computadora">💻 Computadora / Escritorio</option>
+                <option value="estudio">📚 Estudio / Lectura</option>
+                <option value="reuniones">🗣️ Reuniones / Videollamadas</option>
+                <option value="parque">🌳 Parque Público</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="pref-tiempo-defecto" class="form-label">Duración por defecto de tus pausas</label>
+              <select id="pref-tiempo-defecto" class="form-select">
+                <option value="3">3 minutos (Express)</option>
+                <option value="5">5 minutos (Equilibrada)</option>
+                <option value="10">10 minutos (Completa)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="pref-objetivo-defecto" class="form-label">Objetivo principal por defecto</label>
+              <select id="pref-objetivo-defecto" class="form-select">
+                <option value="relajarse">🧘 Aliviar tensión</option>
+                <option value="moverse">🏃 Activar circulación</option>
+                <option value="concentrarse">🎯 Enfoque mental</option>
+                <option value="despejarse">🌿 Descanso visual</option>
+              </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">Guardar Preferencias</button>
+          </form>
+
+          <hr class="section-divider">
+
+          <h3 class="module-card-title">Mis Datos, Sonido y Reportes</h3>
+          <div class="hero-cta-group mt-3">
+            <button type="button" id="btn-test-chime" class="btn btn-secondary btn-sm">🔔 Probar acorde de campana</button>
+            <button type="button" id="btn-enable-notifications" class="btn btn-accent-outline btn-sm">⏰ Activar recordatorios del navegador</button>
+            <button type="button" id="btn-export-csv" class="btn btn-secondary btn-sm">📥 Descargar historial en CSV (Excel)</button>
+            <button type="button" id="btn-send-email-summary" class="btn btn-primary btn-sm">📧 Enviarme resumen de progreso al correo</button>
+          </div>
+        </div>
+
+        <div id="settings-profile-card" class="card hidden">
+          <h2 class="module-card-title">Datos de Perfil, Foto y Seguridad</h2>
+
+          <form id="form-settings-profile">
+            <div class="form-group">
+              <span id="label-avatar-selector" class="form-label">Foto de Perfil o Avatar</span>
+              <div id="avatar-selector-group" class="avatar-selector-row" role="group" aria-labelledby="label-avatar-selector">
+                <img id="profile-photo-preview" class="avatar-photo-preview hidden" src="public/logo.svg" alt="Foto de perfil">
+                <button type="button" class="avatar-option-btn active" data-avatar-choice="🧘" aria-label="Avatar meditación" aria-pressed="true">🧘</button>
+                <button type="button" class="avatar-option-btn" data-avatar-choice="🏃" aria-label="Avatar corredor" aria-pressed="false">🏃</button>
+                <button type="button" class="avatar-option-btn" data-avatar-choice="🧑‍💻" aria-label="Avatar desarrollador" aria-pressed="false">🧑‍💻</button>
+                <button type="button" class="avatar-option-btn" data-avatar-choice="🦽" aria-label="Avatar movilidad inclusiva" aria-pressed="false">🦽</button>
+                <button type="button" class="avatar-option-btn" data-avatar-choice="🌿" aria-label="Avatar naturaleza" aria-pressed="false">🌿</button>
+                <button type="button" class="avatar-option-btn" data-avatar-choice="⚡" aria-label="Avatar energía" aria-pressed="false">⚡</button>
+              </div>
+              <div class="hero-cta-group">
+                <label for="input-profile-photo" class="btn btn-secondary btn-sm">📷 Subir foto propia (máx. 400x400)</label>
+                <input type="file" id="input-profile-photo" class="sr-only" accept="image/*">
+                <button type="button" id="btn-clear-profile-photo" class="btn btn-secondary btn-sm hidden">Usar emoji avatar</button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="profile-correo" class="form-label">Correo electrónico actual</label>
+              <input type="email" id="profile-correo" class="form-input" disabled>
+            </div>
+            <div class="form-group">
+              <label for="profile-nombre" class="form-label">Nombre completo o alias</label>
+              <input type="text" id="profile-nombre" class="form-input" required minlength="2" maxlength="100">
+            </div>
+            <div class="form-group">
+              <label for="profile-carrera" class="form-label">Ocupación o rol principal</label>
+              <select id="profile-carrera" class="form-select">
+                <option value="estudiante">Estudiante</option>
+                <option value="trabajador_oficina">Trabajador de Oficina / Remoto</option>
+                <option value="docente">Docente / Investigador</option>
+                <option value="personal_administrativo">Personal Administrativo</option>
+                <option value="operativo">Personal Operativo / Planta</option>
+                <option value="ambos">Estudiante y Trabajador</option>
+                <option value="otro">Otro</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="profile-meta-diaria" class="form-label">Meta diaria de bienestar (minutos)</label>
+              <select id="profile-meta-diaria" class="form-select">
+                <option value="10">10 minutos al día</option>
+                <option value="15" selected>15 minutos al día (Recomendado OMS)</option>
+                <option value="20">20 minutos al día</option>
+                <option value="30">30 minutos al día</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Actualizar Perfil</button>
+          </form>
+
+          <hr class="section-divider">
+
+          <h3 class="module-card-title">Cambiar Correo Electrónico</h3>
+          <form id="form-settings-change-email">
+            <div class="form-group">
+              <label for="change-email-input" class="form-label">Nuevo correo electrónico real (se enviará confirmación)</label>
+              <input type="email" id="change-email-input" class="form-input" placeholder="nuevo@correo.com" required autocomplete="email">
+            </div>
+            <div class="form-group">
+              <label for="change-email-password" class="form-label">Contraseña actual (confirmación de seguridad)</label>
+              <input type="password" id="change-email-password" class="form-input" required autocomplete="current-password">
+            </div>
+            <button type="submit" class="btn btn-secondary btn-block">Actualizar Correo y Enviar Código</button>
+          </form>
+
+          <hr class="section-divider">
+
+          <h3 class="module-card-title">Cambiar Contraseña</h3>
+          <form id="form-settings-password">
+            <div class="form-group">
+              <label for="pwd-current" class="form-label">Contraseña actual</label>
+              <input type="password" id="pwd-current" class="form-input" required autocomplete="current-password">
+            </div>
+            <div class="form-group">
+              <label for="pwd-new" class="form-label">Nueva contraseña (mín. 8 caracteres, mayúscula, número y símbolo)</label>
+              <input type="password" id="pwd-new" class="form-input" required minlength="8" autocomplete="new-password">
+            </div>
+            <div class="form-group">
+              <label for="pwd-confirm" class="form-label">Confirmar nueva contraseña</label>
+              <input type="password" id="pwd-confirm" class="form-input" required minlength="8" autocomplete="new-password">
+            </div>
+            <button type="submit" class="btn btn-secondary btn-block">Actualizar Contraseña</button>
+          </form>
+
+          <button type="button" id="btn-logout-settings" class="btn btn-secondary btn-block mt-3">Cerrar Sesión</button>
+
+          <details class="danger-zone-details">
+            <summary>⚠️ Zona de Peligro: Dar de baja y eliminar mi cuenta</summary>
+            <form id="form-settings-delete" class="mt-3">
+              <div class="form-group">
+                <label for="delete-account-password" class="form-label">Contraseña actual</label>
+                <input type="password" id="delete-account-password" class="form-input" required autocomplete="current-password">
+              </div>
+              <div class="form-group">
+                <label for="delete-account-confirm" class="form-label">
+                  Escribe <strong>ELIMINAR</strong> para borrar permanentemente tu cuenta, rachas y parques favoritos:
+                </label>
+                <input type="text" id="delete-account-confirm" class="form-input" placeholder="ELIMINAR" required>
+              </div>
+              <button type="submit" class="btn btn-danger btn-block">Eliminar Cuenta Permanentemente</button>
+            </form>
+          </details>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="assets/js/modules/ajustes.js"></script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Pausas Activas Inteligentes">
+  <defs>
+    <linearGradient id="paiBgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2e6f65"/>
+      <stop offset="100%" stop-color="#1e4d45"/>
+    </linearGradient>
+    <linearGradient id="paiBorderGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#9cc6be"/>
+      <stop offset="100%" stop-color="#f26b50"/>
+    </linearGradient>
+    <linearGradient id="paiStretchGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fb8067"/>
+      <stop offset="100%" stop-color="#f26b50"/>
+    </linearGradient>
+    <linearGradient id="paiParkWaveGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#f8fafc"/>
+      <stop offset="100%" stop-color="#f26b50"/>
+    </linearGradient>
+  </defs>
+  <rect x="2" y="2" width="60" height="60" rx="15" fill="url(#paiBgGrad)" stroke="url(#paiBorderGrad)" stroke-width="2.5"/>
+  <path d="M48 10 L49.5 14.5 L54 16 L49.5 17.5 L48 22 L46.5 17.5 L42 16 L46.5 14.5 Z" fill="#f26b50"/>
+  <circle cx="32" cy="17" r="5" fill="#f8fafc"/>
+  <path d="M16 24 C23 33, 41 33, 48 23" fill="none" stroke="url(#paiStretchGrad)" stroke-width="4.5" stroke-linecap="round"/>
+  <path d="M32 25 V40" fill="none" stroke="#f8fafc" stroke-width="4.5" stroke-linecap="round"/>
+  <path d="M13 47 Q23 39 32 45.5 T51 41.5" fill="none" stroke="url(#paiParkWaveGrad)" stroke-width="4" stroke-linecap="round"/>
+</svg>
