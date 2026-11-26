@@ -14,6 +14,7 @@ use App\Models\HistorialModel;
 use App\Models\ParqueFavoritoModel;
 use App\Models\UsuarioModel;
 use App\Services\EmailService;
+use App\Services\JwtService;
 
 final class UsuariosController
 {
@@ -120,12 +121,15 @@ final class UsuariosController
             self::json(404, ['ok' => false, 'error' => 'No se encontró la cuenta para actualizar.']);
         }
 
-        $_SESSION['nombre']    = (string)$actualizado['nombre'];
-        $_SESSION['ocupacion'] = (string)$actualizado['ocupacion'];
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            $_SESSION['nombre']    = (string)$actualizado['nombre'];
+            $_SESSION['ocupacion'] = (string)$actualizado['ocupacion'];
+        }
 
         self::json(200, [
             'ok'      => true,
             'mensaje' => 'Perfil y preferencias actualizados correctamente.',
+            'token'   => JwtService::issueForUser($actualizado),
             'usuario' => UsuarioModel::toPublicArray($actualizado),
         ]);
     }
@@ -201,8 +205,10 @@ final class UsuariosController
             self::json(404, ['ok' => false, 'error' => 'No se encontró la cuenta para actualizar el correo.']);
         }
 
-        $_SESSION['email']            = $nuevoEmail;
-        $_SESSION['email_verificado'] = false;
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            $_SESSION['email']            = $nuevoEmail;
+            $_SESSION['email_verificado'] = false;
+        }
 
         $envio = EmailService::enviarVerificacionCuenta(
             $nuevoEmail,
@@ -215,6 +221,7 @@ final class UsuariosController
         $resp = [
             'ok'      => true,
             'mensaje' => "Correo actualizado a {$nuevoEmail}. Hemos enviado un nuevo código de 6 dígitos y enlace de confirmación.",
+            'token'   => JwtService::issueForUser($actualizado),
             'usuario' => UsuarioModel::toPublicArray($actualizado),
         ];
         if (Secrets::get('APP_ENV', 'development') !== 'production') {

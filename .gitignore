@@ -1,8 +1,14 @@
 # Ignorar secretos, dependencias, IDE y archivos temporales en la raíz del proyecto
 .vscode/
+.env
+.env.*
+!.env.example
 backend/.env
+backend/.env.*
+!backend/.env.example
 backend/vendor/
 backend/storage/cache/*.json
+backend/storage/cache/*.tmp
 !backend/storage/cache/.gitkeep
 !backend/storage/cache/.htaccess
 backend/storage/logs/*.log

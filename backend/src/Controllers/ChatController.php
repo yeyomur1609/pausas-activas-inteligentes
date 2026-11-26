@@ -26,8 +26,10 @@ final class ChatController
 
         $accion = (string)($body['accion'] ?? 'mensaje');
         if ($accion === 'limpiar_historial') {
-            Secrets::initSecureSession();
-            $_SESSION['actibot_history'] = [];
+            if (!AuthMiddleware::isAuthenticatedViaBearer() && (!empty($_COOKIE['PAI_SESSID']) || session_status() === PHP_SESSION_ACTIVE)) {
+                Secrets::initSecureSession();
+                $_SESSION['actibot_history'] = [];
+            }
             self::json(200, [
                 'ok'      => true,
                 'mensaje' => 'Conversación de ActiBot reiniciada.',
@@ -48,8 +50,12 @@ final class ChatController
 
         $parqueContexto = isset($body['parque_contexto']) ? trim(strip_tags((string)$body['parque_contexto'])) : null;
 
+        // Soportar historial stateless enviado por el cliente (JWT Bearer) con respaldo a $_SESSION local
+        $historialBody = is_array($body['historial'] ?? null) ? $body['historial'] : [];
         $historialSesion = is_array($_SESSION['actibot_history'] ?? null) ? $_SESSION['actibot_history'] : [];
-        $historial = array_slice($historialSesion, -6);
+        $historial = !empty($historialBody)
+            ? array_slice($historialBody, -6)
+            : array_slice($historialSesion, -6);
 
         if (session_status() === PHP_SESSION_ACTIVE) {
             session_write_close();
@@ -64,13 +70,15 @@ final class ChatController
             ]);
         }
 
-        // Guardar últimos 6 turnos en la sesión tras una respuesta válida de Gemini API
-        Secrets::initSecureSession();
-        $historialGuardar = is_array($_SESSION['actibot_history'] ?? null) ? $_SESSION['actibot_history'] : $historial;
-        $historialGuardar[] = ['role' => 'user', 'text' => mb_substr($mensaje, 0, 450, 'UTF-8')];
-        $historialGuardar[] = ['role' => 'model', 'text' => (string)$resultado['respuesta']];
-        $_SESSION['actibot_history'] = array_slice($historialGuardar, -6);
-        session_write_close();
+        // Si el cliente opera con sesión local por cookie (no Bearer stateless), sincronizar historial en sesión
+        if (!AuthMiddleware::isAuthenticatedViaBearer() && (!empty($_COOKIE['PAI_SESSID']) || session_status() === PHP_SESSION_ACTIVE)) {
+            Secrets::initSecureSession();
+            $historialGuardar = is_array($_SESSION['actibot_history'] ?? null) ? $_SESSION['actibot_history'] : $historial;
+            $historialGuardar[] = ['role' => 'user', 'text' => mb_substr($mensaje, 0, 450, 'UTF-8')];
+            $historialGuardar[] = ['role' => 'model', 'text' => (string)$resultado['respuesta']];
+            $_SESSION['actibot_history'] = array_slice($historialGuardar, -6);
+            session_write_close();
+        }
 
         self::json(200, [
             'ok'          => true,

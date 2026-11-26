@@ -70,7 +70,12 @@ final class RateLimitMiddleware
                 if ($isSqlSrv) {
                     $ins = $pdo->prepare(
                         'MERGE dbo.rate_limits WITH (HOLDLOCK) AS target
-                         USING (SELECT :hash AS clave_hash, :accion AS accion, :ip AS ip_cliente) AS source
+                         USING (
+                             SELECT
+                                 CAST(:hash AS VARCHAR(64))    AS clave_hash,
+                                 CAST(:accion AS NVARCHAR(50)) AS accion,
+                                 CAST(:ip AS VARCHAR(45))      AS ip_cliente
+                         ) AS source
                             ON target.clave_hash = source.clave_hash
                          WHEN MATCHED THEN
                              UPDATE SET intentos = target.intentos + 1
@@ -116,7 +121,7 @@ final class RateLimitMiddleware
             if ($nuevosIntentos > $maxIntentos) {
                 $espera = max(5, $ventanaSegundos - $segTranscurridos);
                 $bloqExpr = $isSqlSrv
-                    ? 'DATEADD(SECOND, :espera, GETUTCDATE())'
+                    ? 'DATEADD(SECOND, CAST(:espera AS INT), GETUTCDATE())'
                     : 'TIMESTAMPADD(SECOND, :espera, NOW())';
                 $updBloq = $pdo->prepare(
                     "UPDATE rate_limits

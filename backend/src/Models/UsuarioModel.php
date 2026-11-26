@@ -68,7 +68,7 @@ final class UsuarioModel
     private static function dateAddMinutesSql(string $param): string
     {
         return self::isSqlSrv()
-            ? "DATEADD(MINUTE, {$param}, GETUTCDATE())"
+            ? "DATEADD(MINUTE, CAST({$param} AS INT), GETUTCDATE())"
             : "TIMESTAMPADD(MINUTE, {$param}, NOW())";
     }
 

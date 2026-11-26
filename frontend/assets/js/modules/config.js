@@ -2,9 +2,11 @@
  * Configuración global del cliente Frontend (ES Module) — Pausas Activas Inteligentes
  * Sin claves secretas ni credenciales privadas (seguridad por diseño).
  *
- * Despliegue en producción:
- * - Frontend estático + PWA en Vercel (Free Tier)
- * - Backend Docker PHP/Apache en Render (Free Tier) -> actualizar PRODUCTION_API_BASE_URL con tu URL real de Render
+ * Orden de prioridad para resolver la URL base del Backend API:
+ * 1. <meta name="pai-api-base" content="https://.../api"> (en el HTML si se inyecta en despliegue)
+ * 2. window.__PAI_API_BASE__ (variable global opcional en tiempo de ejecución)
+ * 3. Autodetección local (XAMPP Apache en /frontend o servidor local en localhost:8000)
+ * 4. PRODUCTION_API_BASE_URL -> Coloca aquí la URL real de tu Web Service en Render terminada en /api
  */
 const PRODUCTION_API_BASE_URL = 'https://pausas-activas-api.onrender.com/api';
 
@@ -19,30 +21,32 @@ const frontendIdx = pathname.toLowerCase().indexOf('/frontend');
 const isApacheLocalFrontend =
   isLocalHost && frontendIdx !== -1 && (port === '' || port === '80' || port === '443');
 
-// Permite sobrescribir opcionalmente la URL del backend mediante <meta name="pai-api-base" content="https://.../api">
 const metaApiBase =
   typeof document !== 'undefined'
     ? (document.querySelector('meta[name="pai-api-base"]')?.getAttribute('content') || '').trim()
     : '';
 
-// Autodetección de entorno:
-// 1. Etiqueta <meta name="pai-api-base"> explícita (si existe)
-// 2. XAMPP / Apache local (/.../frontend/): mismo origen -> /.../backend/public/api
-// 3. Servidor local separado (localhost:3000 / 127.0.0.1:3000): backend en :8000/api
-// 4. Producción (Vercel *.vercel.app o dominio propio): PRODUCTION_API_BASE_URL (Render)
+const globalWindowApiBase =
+  typeof window !== 'undefined' && typeof window.__PAI_API_BASE__ === 'string'
+    ? window.__PAI_API_BASE__.trim()
+    : '';
+
 let defaultApiBase;
 if (metaApiBase) {
   defaultApiBase = metaApiBase.replace(/\/+$/, '');
+} else if (globalWindowApiBase) {
+  defaultApiBase = globalWindowApiBase.replace(/\/+$/, '');
 } else if (isApacheLocalFrontend) {
   const basePrefix = frontendIdx > 0 ? pathname.slice(0, frontendIdx) : '';
   defaultApiBase = `${origin}${basePrefix}/backend/public/api`;
 } else if (isLocalHost) {
   defaultApiBase = `${protocol}//${hostname}:8000/api`;
 } else {
-  defaultApiBase = PRODUCTION_API_BASE_URL;
+  defaultApiBase = PRODUCTION_API_BASE_URL.replace(/\/+$/, '');
 }
 
 export const STORAGE_KEYS = Object.freeze({
+  AUTH_TOKEN: 'pai_auth_token_v1',
   A11Y: 'pai_a11y_prefs_v4',
   COOKIES_ACCEPTED: 'pai_cookies_accepted_v1',
   GUEST_STATS: 'pai_guest_stats_v2',
@@ -54,7 +58,7 @@ export const STORAGE_KEYS = Object.freeze({
 
 export const PAI_CONFIG = Object.freeze({
   APP_NAME: 'Pausas Activas Inteligentes',
-  APP_VERSION: '3.1.0',
+  APP_VERSION: '3.2.0',
   API_BASE_URL: defaultApiBase,
   IS_LOCAL_ENV: isLocalHost,
   // Tiempo máximo tolerado para absorber el cold start de Render Free (30–50 s) + conexión a Azure SQL

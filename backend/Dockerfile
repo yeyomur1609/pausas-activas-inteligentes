@@ -31,15 +31,15 @@ RUN apt-get update \
     && docker-php-ext-enable sqlsrv pdo_sqlsrv \
     && rm -rf /var/lib/apt/lists/* /tmp/pear
 
-# 2. Módulos de Apache necesarios para rutas amigables, cabeceras de seguridad y compresión
-RUN a2enmod rewrite headers deflate expires
+# 2. Módulos de Apache necesarios para rutas amigables, cabeceras de seguridad, paso de Authorization y compresión
+RUN a2enmod rewrite headers deflate expires setenvif
 
-# 3. Configurar DocumentRoot en /var/www/html/public con AllowOverride All y endurecimiento de Apache
+# 3. Configurar DocumentRoot en /var/www/html/public con AllowOverride All, CGIPassAuth y endurecimiento de Apache
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' \
         /etc/apache2/sites-available/000-default.conf \
         /etc/apache2/apache2.conf \
         /etc/apache2/conf-available/*.conf \
-    && printf '<Directory /var/www/html/public>\n    Options -Indexes -MultiViews\n    AllowOverride All\n    Require all granted\n</Directory>\nServerTokens Prod\nServerSignature Off\n' \
+    && printf '<Directory /var/www/html/public>\n    Options -Indexes -MultiViews\n    AllowOverride All\n    CGIPassAuth On\n    SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1\n    Require all granted\n</Directory>\nServerTokens Prod\nServerSignature Off\n' \
         > /etc/apache2/conf-available/pai-public.conf \
     && a2enconf pai-public
 

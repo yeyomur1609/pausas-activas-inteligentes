@@ -56,11 +56,15 @@ if ($IsRemoteHttps) {
   Write-Host "Modo remoto HTTPS detectado: tolerando cold start de Render hasta ${ColdStartTimeoutSec}s..." -ForegroundColor Yellow
 }
 
-# 1. Backend /health.php (absorbe posible cold start de Render Free)
-$healthResp = Invoke-WebRequest -Uri "$BackendUrl/health.php" -TimeoutSec $ColdStartTimeoutSec -Headers @{ Origin = $OriginHeader } -UseBasicParsing
-Assert-True ($healthResp.StatusCode -eq 200) "GET /health.php -> 200 OK"
-$healthJson = $healthResp.Content | ConvertFrom-Json
-Assert-True ($healthJson.ok -eq $true) "GET /health.php -> ok: true (PHP $($healthJson.php), driver=$($healthJson.db_driver), env=$($healthJson.env))"
+# 1. Backend /health (rewrite limpio), /health?deep=1 y /health.php (absorbe posible cold start de Render Free)
+$healthCleanResp = Invoke-WebRequest -Uri "$BackendUrl/health" -TimeoutSec $ColdStartTimeoutSec -Headers @{ Origin = $OriginHeader } -UseBasicParsing
+Assert-True ($healthCleanResp.StatusCode -eq 200) "GET /health (rewrite limpio) -> 200 OK"
+$healthJson = $healthCleanResp.Content | ConvertFrom-Json
+Assert-True ($healthJson.ok -eq $true) "GET /health -> ok: true (PHP $($healthJson.php), driver=$($healthJson.db_driver), env=$($healthJson.env))"
+
+$healthDeepResp = Invoke-WebRequest -Uri "$BackendUrl/health?deep=1" -TimeoutSec 25 -Headers @{ Origin = $OriginHeader } -UseBasicParsing
+$healthDeepJson = $healthDeepResp.Content | ConvertFrom-Json
+Assert-True ($healthDeepResp.StatusCode -eq 200 -and $healthDeepJson.db -eq 'connected') "GET /health?deep=1 -> 200 OK (db=connected)"
 
 # 1b. Preflight CORS OPTIONS y verificación de cabeceras cross-domain
 $preflightResp = Invoke-WebRequest -Uri "$BackendUrl/api/auth.php?accion=session" -Method Options `
@@ -125,7 +129,29 @@ if (-not $SkipAuthDemo) {
     -ContentType 'application/json' -Body $loginBody -TimeoutSec 25 -UseBasicParsing
   Assert-True ($loginResp.StatusCode -eq 200) "POST /api/auth.php?accion=login (estudiante@pausasactivas.edu.mx) -> 200 OK"
   $loginJson = $loginResp.Content | ConvertFrom-Json
-  Assert-True ($loginJson.ok -eq $true -and $loginJson.usuario.email -eq 'estudiante@pausasactivas.edu.mx') "Login devuelve usuario autenticado"
+  $jwtToken = [string]$loginJson.token
+  Assert-True ($loginJson.ok -eq $true -and $loginJson.usuario.email -eq 'estudiante@pausasactivas.edu.mx' -and -not [string]::IsNullOrWhiteSpace($jwtToken)) "Login devuelve usuario autenticado y JWT Bearer firmado"
+
+  # 4b. Verificación Stateless pura (JWT Bearer SIN cookies ni X-CSRF-Token, simulando Vercel <-> Render sin cookies de terceros)
+  $statelessPerfilResp = Invoke-WebRequest -Uri "$BackendUrl/api/usuarios.php?accion=perfil" `
+    -Headers @{ Authorization = "Bearer $jwtToken"; Origin = $OriginHeader } -TimeoutSec 25 -UseBasicParsing
+  $statelessPerfilJson = $statelessPerfilResp.Content | ConvertFrom-Json
+  Assert-True ($statelessPerfilResp.StatusCode -eq 200 -and $statelessPerfilJson.ok -eq $true -and $statelessPerfilJson.usuario.email -eq 'estudiante@pausasactivas.edu.mx') "GET /api/usuarios.php con Authorization: Bearer (sin cookies) -> 200 OK"
+
+  $statelessPrefsResp = Invoke-WebRequest -Uri "$BackendUrl/api/usuarios.php?accion=guardar_preferencias" -Method Put `
+    -Headers @{ Authorization = "Bearer $jwtToken"; Origin = $OriginHeader } `
+    -ContentType 'application/json' -Body '{"accion":"guardar_preferencias","preferencias":{"tema_claro":true}}' -TimeoutSec 25 -UseBasicParsing
+  $statelessPrefsJson = $statelessPrefsResp.Content | ConvertFrom-Json
+  Assert-True ($statelessPrefsResp.StatusCode -eq 200 -and $statelessPrefsJson.ok -eq $true) "PUT /api/usuarios.php con Authorization: Bearer (sin cookie CSRF) -> 200 OK"
+
+  $tamperedStatus = 0
+  try {
+    Invoke-WebRequest -Uri "$BackendUrl/api/usuarios.php?accion=perfil" `
+      -Headers @{ Authorization = "Bearer ${jwtToken}x"; Origin = $OriginHeader } -TimeoutSec 15 -UseBasicParsing | Out-Null
+  } catch {
+    $tamperedStatus = Get-HttpErrorStatus $_
+  }
+  Assert-True ($tamperedStatus -eq 401) "JWT Bearer alterado es rechazado con HTTP 401"
 
   # 5. Verificación de persistencia de cookie de sesión GET /api/auth.php?accion=session
   $sessAuthResp = Invoke-WebRequest -Uri "$BackendUrl/api/auth.php?accion=session" -WebSession $apiSession -Headers @{ Origin = $OriginHeader } -TimeoutSec 25 -UseBasicParsing

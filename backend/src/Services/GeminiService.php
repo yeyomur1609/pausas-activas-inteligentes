@@ -11,15 +11,17 @@ final class GeminiService
 {
     private const API_BASE = 'https://generativelanguage.googleapis.com/v1beta/models/';
 
+    private const DEFAULT_MODEL = 'gemini-2.5-flash-lite';
+
     /**
-     * Modelos activos de respaldo en la misma API oficial de Google Gemini
-     * usados únicamente si el modelo configurado devuelve HTTP 404 (modelo retirado para la llave).
+     * Modelos oficiales estables priorizados ante HTTP 404 / saturación temporal del modelo primario.
      */
     private const LIVE_GEMINI_MODELS_ON_404 = [
-        'gemini-3.5-flash-lite',
-        'gemini-3.8-flash',
+        'gemini-2.5-flash-lite',
+        'gemini-2.5-flash',
+        'gemini-2.0-flash',
         'gemini-flash-lite-latest',
-        'gemini-3.6-flash',
+        'gemini-3.5-flash-lite',
     ];
 
     public static function obtenerSystemPrompt(?string $parqueContexto = null): string
@@ -49,9 +51,9 @@ final class GeminiService
         ?string $parqueContexto = null
     ): array {
         $apiKey = trim(Secrets::get('GEMINI_API_KEY'));
-        $modeloConfigurado = trim(Secrets::get('GEMINI_MODEL', 'gemini-3.8-flash'));
+        $modeloConfigurado = trim(Secrets::get('GEMINI_MODEL', self::DEFAULT_MODEL));
         if ($modeloConfigurado === '') {
-            $modeloConfigurado = 'gemini-3.8-flash';
+            $modeloConfigurado = self::DEFAULT_MODEL;
         }
 
         $mensajeLimpio = trim(mb_substr($mensajeUsuario, 0, 500, 'UTF-8'));

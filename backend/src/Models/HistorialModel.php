@@ -187,7 +187,7 @@ final class HistorialModel
         $lim = max(1, min(30, $limite));
 
         $tailClause = $isSqlSrv
-            ? 'OFFSET 0 ROWS FETCH NEXT :lim ROWS ONLY'
+            ? "OFFSET 0 ROWS FETCH NEXT {$lim} ROWS ONLY"
             : 'LIMIT :lim';
 
         $stmt = $pdo->prepare(
@@ -205,7 +205,9 @@ final class HistorialModel
              ORDER BY h.id DESC
              {$tailClause}"
         );
-        $stmt->bindValue(':lim', $lim, PDO::PARAM_INT);
+        if (!$isSqlSrv) {
+            $stmt->bindValue(':lim', $lim, PDO::PARAM_INT);
+        }
         $stmt->execute();
         $filas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 

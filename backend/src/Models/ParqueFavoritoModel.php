@@ -107,16 +107,16 @@ final class ParqueFavoritoModel
                 'MERGE dbo.parques_favoritos WITH (HOLDLOCK) AS target
                  USING (
                      SELECT
-                         :uid    AS usuario_id,
-                         :osm_id AS parque_osm_id,
-                         :nombre AS nombre,
-                         :lat    AS latitud,
-                         :lng    AS longitud,
-                         :dir    AS direccion,
-                         :eq     AS equipamiento_json,
-                         :silla  AS accesibilidad_silla,
-                         :notas  AS notas,
-                         :foto   AS foto_url
+                         CAST(:uid AS INT)               AS usuario_id,
+                         CAST(:osm_id AS NVARCHAR(64))   AS parque_osm_id,
+                         CAST(:nombre AS NVARCHAR(140))  AS nombre,
+                         CAST(:lat AS DECIMAL(10, 7))    AS latitud,
+                         CAST(:lng AS DECIMAL(10, 7))    AS longitud,
+                         CAST(:dir AS NVARCHAR(220))     AS direccion,
+                         CAST(:eq AS NVARCHAR(MAX))      AS equipamiento_json,
+                         CAST(:silla AS BIT)             AS accesibilidad_silla,
+                         CAST(:notas AS NVARCHAR(255))   AS notas,
+                         CAST(:foto AS NVARCHAR(255))    AS foto_url
                  ) AS source
                     ON target.usuario_id = source.usuario_id
                    AND target.parque_osm_id = source.parque_osm_id

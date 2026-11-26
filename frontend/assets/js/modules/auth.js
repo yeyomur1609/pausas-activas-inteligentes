@@ -1,7 +1,7 @@
 /**
  * Módulo de Autenticación, Guardia de Sesión MPA y Página de Login (ES Module)
  */
-import { ApiClient, setSessionUser } from './api-client.js';
+import { ApiClient, clearAuthToken, setAuthToken, setSessionUser } from './api-client.js';
 import {
   applyA11yToDOM,
   bindA11yBarEvents,
@@ -112,6 +112,9 @@ export async function checkUrlAuthTokens() {
   if (magicToken) {
     try {
       const res = await ApiClient.auth.validarMagicLink(magicToken, emailParam, '');
+      if (res && res.token) {
+        setAuthToken(res.token);
+      }
       if (res && res.usuario) {
         setSessionUser(res.usuario);
         hydrateUserPreferencesFromServer(res.usuario);
@@ -131,6 +134,9 @@ export async function checkUrlAuthTokens() {
   if (isVerifyAction && verifyToken) {
     try {
       const res = await ApiClient.auth.verificarEmail(emailParam, '', verifyToken);
+      if (res && res.token) {
+        setAuthToken(res.token);
+      }
       if (res && res.usuario) {
         setSessionUser(res.usuario);
         hydrateUserPreferencesFromServer(res.usuario);
@@ -159,6 +165,7 @@ export async function requireAuthOrRedirect() {
   }
 
   if (!sessionData || !sessionData.autenticado || !sessionData.usuario) {
+    clearAuthToken();
     const searchParams = new URLSearchParams(window.location.search);
     const hasAuthAction = Boolean(
       searchParams.get('magic_token') ||
@@ -196,6 +203,7 @@ export async function handleLogout() {
   } catch (_err) {
     // Limpiar sesión cliente igualmente
   }
+  clearAuthToken();
   setSessionUser(null);
   window.location.replace('login.html');
 }
@@ -287,6 +295,9 @@ function bindLoginForms() {
       const password = document.getElementById('login-password').value;
       try {
         const res = await ApiClient.auth.login(email, password);
+        if (res && res.token) {
+          setAuthToken(res.token);
+        }
         setSessionUser(res.usuario);
         hydrateUserPreferencesFromServer(res.usuario);
         redirectAfterLogin();
@@ -320,6 +331,9 @@ function bindLoginForms() {
           password,
           acepto_privacidad: true
         });
+        if (res && res.token) {
+          setAuthToken(res.token);
+        }
         if (res && res.usuario) {
           setSessionUser(res.usuario);
           hydrateUserPreferencesFromServer(res.usuario);
@@ -358,6 +372,9 @@ function bindLoginForms() {
       const codigo = document.getElementById('otp-code').value.trim();
       try {
         const res = await ApiClient.auth.verificarEmail(email, codigo);
+        if (res && res.token) {
+          setAuthToken(res.token);
+        }
         if (res && res.usuario) {
           setSessionUser(res.usuario);
           hydrateUserPreferencesFromServer(res.usuario);
@@ -421,6 +438,9 @@ function bindLoginForms() {
           codeEl.required = true;
           const group = codeEl.closest('.form-group');
           if (group) group.classList.remove('hidden');
+        }
+        if (res && res.token) {
+          setAuthToken(res.token);
         }
         if (res && res.usuario) {
           setSessionUser(res.usuario);

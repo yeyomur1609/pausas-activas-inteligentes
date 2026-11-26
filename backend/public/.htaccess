@@ -2,6 +2,12 @@
 # Punto de entrada público de la API REST (DocumentRoot del backend)
 Options -Indexes -MultiViews
 
+# Garantizar que Apache pase el encabezado Authorization: Bearer <jwt> hacia PHP
+CGIPassAuth On
+<IfModule mod_setenvif.c>
+    SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
+</IfModule>
+
 <FilesMatch "(^\.|composer\.(json|lock)$|\.sql$|\.log$|\.md$|\.example$)">
     Require all denied
 </FilesMatch>
@@ -20,7 +26,11 @@ Options -Indexes -MultiViews
 
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    # Permitir acceso directo a los endpoints en api/
+
+    # Health check limpio para Render (/health y /health?deep=1 -> health.php)
+    RewriteRule ^health$ health.php [L,QSA]
+
+    # Permitir acceso directo a los archivos existentes (health.php, api/*.php)
     RewriteCond %{REQUEST_FILENAME} -f
     RewriteRule ^ - [L]
 

@@ -12,6 +12,7 @@ use App\Middleware\CsrfMiddleware;
 use App\Middleware\RateLimitMiddleware;
 use App\Models\UsuarioModel;
 use App\Services\EmailService;
+use App\Services\JwtService;
 
 final class AuthController
 {
@@ -25,9 +26,12 @@ final class AuthController
 
         // 1. Handshake inicial para el frontend estático (GET ?accion=session)
         if ($method === 'GET' && $accion === 'session') {
-            $csrf = CsrfMiddleware::getToken();
             $sessionUser = AuthMiddleware::optionalUser();
+            $csrf = AuthMiddleware::isAuthenticatedViaBearer()
+                ? bin2hex(random_bytes(32))
+                : CsrfMiddleware::getToken();
             $usuarioCompleto = null;
+            $refreshedJwt = null;
 
             if ($sessionUser !== null) {
                 $dbUser = UsuarioModel::findById($sessionUser['id']);
@@ -44,6 +48,7 @@ final class AuthController
                         $csrf = CsrfMiddleware::getToken();
                     } else {
                         $usuarioCompleto = UsuarioModel::toPublicArray($dbUser);
+                        $refreshedJwt = JwtService::issueForUser($dbUser);
                     }
                 } else {
                     AuthMiddleware::logoutSession();
@@ -51,13 +56,17 @@ final class AuthController
                 }
             }
 
-            self::json(200, [
+            $respSession = [
                 'ok'               => true,
                 'autenticado'      => $usuarioCompleto !== null,
                 'csrf_token'       => $csrf,
                 'google_client_id' => Secrets::get('GOOGLE_CLIENT_ID', ''),
                 'usuario'          => $usuarioCompleto,
-            ]);
+            ];
+            if ($refreshedJwt !== null) {
+                $respSession['token'] = $refreshedJwt;
+            }
+            self::json(200, $respSession);
         }
 
         if ($method !== 'POST') {
@@ -74,6 +83,7 @@ final class AuthController
                 break;
 
             case 'registro':
+            case 'register':
                 RateLimitMiddleware::check('auth_registro', 6, 60);
                 self::registro($body);
                 break;
@@ -97,11 +107,13 @@ final class AuthController
                 break;
 
             case 'validar_magic_link':
+            case 'magic_link':
                 RateLimitMiddleware::check('auth_magic_val', 10, 60, (string)($body['email'] ?? ''));
                 self::validarMagicLink($body);
                 break;
 
             case 'google_oauth':
+            case 'google':
                 RateLimitMiddleware::check('auth_google', 10, 60);
                 self::googleOAuth($body);
                 break;
@@ -173,10 +185,11 @@ final class AuthController
             }
         }
 
-        AuthMiddleware::loginUserSession($user);
+        $jwt = AuthMiddleware::loginUserSession($user);
         self::json(200, [
             'ok'         => true,
             'mensaje'    => '¡Bienvenido de nuevo a Pausas Activas Inteligentes!',
+            'token'      => $jwt,
             'csrf_token' => CsrfMiddleware::getToken(),
             'usuario'    => UsuarioModel::toPublicArray($user),
         ]);
@@ -243,14 +256,15 @@ final class AuthController
 
         $envio = EmailService::enviarVerificacionCuenta($email, $nombre, $cred['token'], $cred['codigo'], $ttl);
 
-        // Autenticar inmediatamente la sesión (con plazo de 7 días para verificar)
-        AuthMiddleware::loginUserSession($nuevoUsuario);
+        // Autenticar inmediatamente (JWT Bearer stateless + sesión de respaldo local; 7 días de gracia)
+        $jwt = AuthMiddleware::loginUserSession($nuevoUsuario);
 
         $payloadResp = [
             'ok'                    => true,
             'autenticado'           => true,
             'requiere_verificacion' => true,
             'email'                 => $email,
+            'token'                 => $jwt,
             'csrf_token'            => CsrfMiddleware::getToken(),
             'usuario'               => UsuarioModel::toPublicArray($nuevoUsuario),
             'mensaje'               => '¡Cuenta creada y sesión iniciada! Te enviamos un correo de confirmación; tienes 7 días para verificar tu cuenta.',
@@ -284,10 +298,11 @@ final class AuthController
         }
 
         self::assertActiveAccount($usuarioVerificado);
-        AuthMiddleware::loginUserSession($usuarioVerificado);
+        $jwt = AuthMiddleware::loginUserSession($usuarioVerificado);
         self::json(200, [
             'ok'         => true,
             'mensaje'    => '¡Correo electrónico verificado con éxito! Tu cuenta ya está activa.',
+            'token'      => $jwt,
             'csrf_token' => CsrfMiddleware::getToken(),
             'usuario'    => UsuarioModel::toPublicArray($usuarioVerificado),
         ]);
@@ -380,10 +395,11 @@ final class AuthController
         }
 
         self::assertActiveAccount($user);
-        AuthMiddleware::loginUserSession($user);
+        $jwt = AuthMiddleware::loginUserSession($user);
         self::json(200, [
             'ok'         => true,
             'mensaje'    => '¡Acceso verificado mediante Enlace Mágico!',
+            'token'      => $jwt,
             'csrf_token' => CsrfMiddleware::getToken(),
             'usuario'    => UsuarioModel::toPublicArray($user),
         ]);
@@ -464,10 +480,11 @@ final class AuthController
             }
         }
 
-        AuthMiddleware::loginUserSession($user);
+        $jwt = AuthMiddleware::loginUserSession($user);
         self::json(200, [
             'ok'         => true,
             'mensaje'    => 'Sesión iniciada con Google exitosamente.',
+            'token'      => $jwt,
             'csrf_token' => CsrfMiddleware::getToken(),
             'usuario'    => UsuarioModel::toPublicArray($user),
         ]);
@@ -538,10 +555,11 @@ final class AuthController
         }
 
         self::assertActiveAccount($user);
-        AuthMiddleware::loginUserSession($user);
+        $jwt = AuthMiddleware::loginUserSession($user);
         self::json(200, [
             'ok'         => true,
             'mensaje'    => 'Tu contraseña ha sido actualizada exitosamente.',
+            'token'      => $jwt,
             'csrf_token' => CsrfMiddleware::getToken(),
             'usuario'    => UsuarioModel::toPublicArray($user),
         ]);

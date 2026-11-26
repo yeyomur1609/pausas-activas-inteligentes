@@ -4,9 +4,12 @@
  * tolerancia al cold start de Render Free (timeout 65 s + aviso progresivo no invasivo),
  * reintento automático ante CSRF expirado y redirección HTTP 401 en vistas protegidas.
  */
-import { PAI_CONFIG } from './config.js';
+import { PAI_CONFIG, STORAGE_KEYS } from './config.js';
+
+const AUTH_TOKEN_STORAGE_KEY = (STORAGE_KEYS && STORAGE_KEYS.AUTH_TOKEN) || 'pai_auth_token_v1';
 
 let csrfToken = null;
+let memoryAuthToken = null;
 let currentSessionUser = null;
 let backendAwake = false;
 let coldStartNoticeShown = false;
@@ -65,6 +68,43 @@ export function getCsrfToken() {
   return csrfToken;
 }
 
+export function getAuthToken() {
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const stored = window.localStorage.getItem(AUTH_TOKEN_STORAGE_KEY);
+      if (typeof stored === 'string' && stored.trim().length > 0) {
+        memoryAuthToken = stored.trim();
+        return memoryAuthToken;
+      }
+    }
+  } catch (_ignored) {
+    // Modo privado estricto o almacenamiento bloqueado: usar copia en memoria
+  }
+  return memoryAuthToken;
+}
+
+export function setAuthToken(token) {
+  if (typeof token !== 'string' || token.trim().length === 0) {
+    return;
+  }
+  const clean = token.trim();
+  memoryAuthToken = clean;
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      window.localStorage.setItem(AUTH_TOKEN_STORAGE_KEY, clean);
+    }
+  } catch (_ignored) {}
+}
+
+export function clearAuthToken() {
+  memoryAuthToken = null;
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      window.localStorage.removeItem(AUTH_TOKEN_STORAGE_KEY);
+    }
+  } catch (_ignored) {}
+}
+
 export function getSessionUser() {
   return currentSessionUser;
 }
@@ -91,7 +131,9 @@ export async function request(endpoint, options = {}) {
     }
   }
 
-  if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(method) && !csrfToken) {
+  const activeJwt = getAuthToken();
+
+  if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(method) && !csrfToken && !activeJwt) {
     try {
       await syncSession();
     } catch (_ignored) {
@@ -102,6 +144,10 @@ export async function request(endpoint, options = {}) {
   const headers = { Accept: 'application/json' };
   if (options.body !== undefined && options.body !== null) {
     headers['Content-Type'] = 'application/json; charset=utf-8';
+  }
+  const latestJwt = getAuthToken();
+  if (latestJwt) {
+    headers.Authorization = `Bearer ${latestJwt}`;
   }
   if (csrfToken && ['POST', 'PUT', 'DELETE', 'PATCH'].includes(method)) {
     headers['X-CSRF-Token'] = csrfToken;
@@ -227,6 +273,11 @@ export async function request(endpoint, options = {}) {
     setCsrfToken(nextCsrf);
   }
 
+  const nextJwt = (payload && payload.token) || (payload && payload.datos && payload.datos.token);
+  if (typeof nextJwt === 'string' && nextJwt.length > 0) {
+    setAuthToken(nextJwt);
+  }
+
   if (
     response.status === 403 &&
     payload &&
@@ -243,21 +294,26 @@ export async function request(endpoint, options = {}) {
 
   const isFailure = !response.ok || (payload && (payload.ok === false || payload.exito === false));
   if (isFailure) {
-    if (response.status === 401 && window.location && document) {
-      const initialView = document.body ? document.body.getAttribute('data-initial-view') : '';
-      const currentSeg = (window.location.pathname || '').split('/').pop() || 'index.html';
-      const currentSegLower = currentSeg.toLowerCase();
-      const isPublicPage =
-        ['login', 'legal', '404'].includes(initialView) ||
-        ['login.html', 'login', 'legal.html', 'legal', '404.html'].includes(currentSegLower);
+    if (response.status === 401) {
       const isAuthEndpoint = String(endpoint || '').includes('auth.php');
-      if (!isPublicPage && !isAuthEndpoint) {
+      if (!isAuthEndpoint) {
+        clearAuthToken();
         currentSessionUser = null;
-        const nextPage =
-          currentSegLower === 'login.html' || currentSegLower === 'login' || !currentSeg
-            ? 'index.html'
-            : currentSeg;
-        window.location.replace(`login.html?next=${encodeURIComponent(nextPage)}`);
+      }
+      if (window.location && document) {
+        const initialView = document.body ? document.body.getAttribute('data-initial-view') : '';
+        const currentSeg = (window.location.pathname || '').split('/').pop() || 'index.html';
+        const currentSegLower = currentSeg.toLowerCase();
+        const isPublicPage =
+          ['login', 'legal', '404'].includes(initialView) ||
+          ['login.html', 'login', 'legal.html', 'legal', '404.html'].includes(currentSegLower);
+        if (!isPublicPage && !isAuthEndpoint) {
+          const nextPage =
+            currentSegLower === 'login.html' || currentSegLower === 'login' || !currentSeg
+              ? 'index.html'
+              : currentSeg;
+          window.location.replace(`login.html?next=${encodeURIComponent(nextPage)}`);
+        }
       }
     }
 
@@ -283,6 +339,11 @@ export async function syncSession() {
     if (res.csrf_token) {
       setCsrfToken(res.csrf_token);
     }
+    if (res.token) {
+      setAuthToken(res.token);
+    } else if (!res.autenticado) {
+      clearAuthToken();
+    }
     currentSessionUser = res.autenticado ? res.usuario : null;
   }
   return res;
@@ -293,6 +354,9 @@ export const ApiClient = {
   syncSession,
   getCsrfToken,
   setCsrfToken,
+  getAuthToken,
+  setAuthToken,
+  clearAuthToken,
   getSessionUser,
   setSessionUser,
 
@@ -303,14 +367,17 @@ export const ApiClient = {
         method: 'POST',
         body: { accion: 'login', email: correo, password }
       });
+      if (res && res.token) {
+        setAuthToken(res.token);
+      }
       if (res && res.usuario) {
         currentSessionUser = res.usuario;
       }
       return res;
     },
-    registro(datosRegistro) {
+    async registro(datosRegistro) {
       const email = datosRegistro.email || datosRegistro.correo || '';
-      return request('auth.php?accion=registro', {
+      const res = await request('auth.php?accion=registro', {
         method: 'POST',
         body: {
           accion: 'registro',
@@ -321,6 +388,13 @@ export const ApiClient = {
           acepto_privacidad: Boolean(datosRegistro.acepto_privacidad)
         }
       });
+      if (res && res.token) {
+        setAuthToken(res.token);
+      }
+      if (res && res.usuario) {
+        currentSessionUser = res.usuario;
+      }
+      return res;
     },
     async verificarEmail(correo, codigo, token) {
       const res = await request('auth.php?accion=verificar_email', {
@@ -332,6 +406,9 @@ export const ApiClient = {
           token: token || ''
         }
       });
+      if (res && res.token) {
+        setAuthToken(res.token);
+      }
       if (res && res.usuario) {
         currentSessionUser = res.usuario;
       }
@@ -359,6 +436,25 @@ export const ApiClient = {
           codigo: codigo || ''
         }
       });
+      if (res && res.token) {
+        setAuthToken(res.token);
+      }
+      if (res && res.usuario) {
+        currentSessionUser = res.usuario;
+      }
+      return res;
+    },
+    async google(credential) {
+      const res = await request('auth.php?accion=google_oauth', {
+        method: 'POST',
+        body: {
+          accion: 'google_oauth',
+          credential: credential || ''
+        }
+      });
+      if (res && res.token) {
+        setAuthToken(res.token);
+      }
       if (res && res.usuario) {
         currentSessionUser = res.usuario;
       }
@@ -370,8 +466,8 @@ export const ApiClient = {
         body: { accion: 'solicitar_reset', email: correo }
       });
     },
-    confirmarRecuperacion(correo, codigo, passwordNueva, token = '') {
-      return request('auth.php?accion=confirmar_reset', {
+    async confirmarRecuperacion(correo, codigo, passwordNueva, token = '') {
+      const res = await request('auth.php?accion=confirmar_reset', {
         method: 'POST',
         body: {
           accion: 'confirmar_reset',
@@ -381,14 +477,24 @@ export const ApiClient = {
           password_nueva: passwordNueva
         }
       });
+      if (res && res.token) {
+        setAuthToken(res.token);
+      }
+      if (res && res.usuario) {
+        currentSessionUser = res.usuario;
+      }
+      return res;
     },
     async logout() {
-      const res = await request('auth.php?accion=logout', {
-        method: 'POST',
-        body: { accion: 'logout' }
-      });
-      currentSessionUser = null;
-      return res;
+      try {
+        return await request('auth.php?accion=logout', {
+          method: 'POST',
+          body: { accion: 'logout' }
+        });
+      } finally {
+        clearAuthToken();
+        currentSessionUser = null;
+      }
     }
   },
 
@@ -443,12 +549,15 @@ export const ApiClient = {
       });
     },
     async eliminarCuenta(confirmacion, passwordActual) {
-      const res = await request('usuarios.php?accion=eliminar_cuenta', {
-        method: 'DELETE',
-        body: { accion: 'eliminar_cuenta', confirmacion, password_actual: passwordActual }
-      });
-      currentSessionUser = null;
-      return res;
+      try {
+        return await request('usuarios.php?accion=eliminar_cuenta', {
+          method: 'DELETE',
+          body: { accion: 'eliminar_cuenta', confirmacion, password_actual: passwordActual }
+        });
+      } finally {
+        clearAuthToken();
+        currentSessionUser = null;
+      }
     }
   },
 
