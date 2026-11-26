@@ -5,8 +5,9 @@
  * Orden de prioridad para resolver la URL base del Backend API:
  * 1. <meta name="pai-api-base" content="https://.../api"> (en el HTML si se inyecta en despliegue)
  * 2. window.__PAI_API_BASE__ (variable global opcional en tiempo de ejecución)
- * 3. Autodetección local (XAMPP Apache en /frontend o servidor local en localhost:8000)
- * 4. PRODUCTION_API_BASE_URL -> Coloca aquí la URL real de tu Web Service en Render terminada en /api
+ * 3. Autodetección local (entorno de desarrollo en máquina local)
+ * 4. PRODUCTION_API_BASE_URL -> Reemplaza el dominio con la URL real generada por Render terminada en /api
+ *    (o usa '/api' si activas el proxy rewrite en frontend/vercel.json con Render always-on)
  */
 const PRODUCTION_API_BASE_URL = 'https://pausas-activas-api.onrender.com/api';
 

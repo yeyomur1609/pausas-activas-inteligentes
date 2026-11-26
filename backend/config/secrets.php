@@ -44,15 +44,18 @@ final class Secrets
             }
         });
 
-        // 3. Leer archivo .env desde backend/.env (con respaldo a ../.env en entornos locales XAMPP)
-        $rutasEnv = [
-            dirname(__DIR__) . '/.env',
-            dirname(__DIR__, 2) . '/.env',
-        ];
+        // 3. Leer archivo .env local solo si el contenedor/host no inyecta APP_ENV=production directamente
+        $hostAppEnv = strtolower(trim((string)getenv('APP_ENV')));
+        if ($hostAppEnv !== 'production') {
+            $rutasEnv = [
+                dirname(__DIR__) . '/.env',
+                dirname(__DIR__, 2) . '/.env',
+            ];
 
-        foreach ($rutasEnv as $rutaEnv) {
-            if (is_file($rutaEnv) && self::parseEnvFile($rutaEnv)) {
-                break;
+            foreach ($rutasEnv as $rutaEnv) {
+                if (is_file($rutaEnv) && self::parseEnvFile($rutaEnv)) {
+                    break;
+                }
             }
         }
 
@@ -223,10 +226,10 @@ final class Secrets
      */
     public static function allowedOrigins(): array
     {
-        $raw = self::get(
-            'CORS_ALLOWED_ORIGINS',
-            'http://localhost:3000,http://127.0.0.1:3000,http://localhost,http://127.0.0.1'
-        );
+        $defaultOrigins = self::isProduction()
+            ? ''
+            : 'http://localhost:3000,http://127.0.0.1:3000,http://localhost,http://127.0.0.1';
+        $raw = self::get('CORS_ALLOWED_ORIGINS', $defaultOrigins);
         $origins = array_filter(array_map(
             static fn(string $item): string => rtrim(trim($item), '/'),
             explode(',', $raw)

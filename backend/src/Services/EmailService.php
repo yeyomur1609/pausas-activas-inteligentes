@@ -102,7 +102,10 @@ final class EmailService
     {
         $url = trim(Secrets::get('FRONTEND_URL', ''));
         if ($url === '') {
-            $url = trim(Secrets::get('APP_URL', 'http://localhost:3000'));
+            $url = trim(Secrets::get('APP_URL', Secrets::isProduction() ? '' : 'http://localhost:3000'));
+        }
+        if ($url === '' && Secrets::isProduction()) {
+            error_log('[EmailService Warning] FRONTEND_URL no está configurado en producción.');
         }
         return rtrim($url, '/');
     }

@@ -39,10 +39,10 @@ final class Database
             return self::$activeDriver;
         }
 
-        $host = strtolower(trim(Secrets::get('DB_HOST', '127.0.0.1')));
+        $env  = strtolower(trim(Secrets::get('APP_ENV', 'development')));
+        $host = strtolower(trim(Secrets::get('DB_HOST', $env === 'production' ? '' : '127.0.0.1')));
         $portRaw = trim(Secrets::get('DB_PORT', ''));
         $portExplicit = ($portRaw !== '' && is_numeric($portRaw)) ? (int)$portRaw : null;
-        $env  = strtolower(trim(Secrets::get('APP_ENV', 'development')));
 
         // Priorizar Azure SQL (sqlsrv) en producción, hosts *.database.windows.net, puerto explícito 1433 o contenedores sin pdo_mysql
         if (
