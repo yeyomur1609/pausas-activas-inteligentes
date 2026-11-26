@@ -52,10 +52,8 @@ function clearColdStartNotice() {
 }
 
 function getBaseUrl() {
-  return (PAI_CONFIG && PAI_CONFIG.API_BASE_URL ? PAI_CONFIG.API_BASE_URL : 'http://localhost:8000/api').replace(
-    /\/+$/,
-    ''
-  );
+  const configured = PAI_CONFIG && typeof PAI_CONFIG.API_BASE_URL === 'string' ? PAI_CONFIG.API_BASE_URL.trim() : '';
+  return (configured || '/api').replace(/\/+$/, '');
 }
 
 export function setCsrfToken(token) {

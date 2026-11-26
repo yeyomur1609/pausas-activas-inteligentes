@@ -78,20 +78,45 @@ final class Database
         return (int)$pdo->lastInsertId();
     }
 
-    public static function getConnection(): PDO
+    public static function getConnection(bool $throwOnError = false): PDO
     {
         if (self::$instance !== null) {
             return self::$instance;
         }
 
         $driver = self::driver();
-        $host   = Secrets::get('DB_HOST', $driver === 'sqlsrv' ? 'localhost' : '127.0.0.1');
+        $isProd = Secrets::isProduction();
+        $host   = trim(Secrets::get('DB_HOST', $isProd ? '' : ($driver === 'sqlsrv' ? 'localhost' : '127.0.0.1')));
         $port   = Secrets::int('DB_PORT', $driver === 'sqlsrv' ? 1433 : 3306);
-        $dbName = Secrets::get('DB_NAME', 'pausas_activas_db');
-        $user   = Secrets::get('DB_USER', $driver === 'sqlsrv' ? '' : 'root');
+        $dbName = trim(Secrets::get('DB_NAME', $isProd ? '' : 'pausas_activas_db'));
+        $user   = trim(Secrets::get('DB_USER', $isProd ? '' : ($driver === 'sqlsrv' ? '' : 'root')));
         $pass   = Secrets::get('DB_PASSWORD', '') !== ''
             ? Secrets::get('DB_PASSWORD', '')
             : Secrets::get('DB_PASS', '');
+
+        if ($isProd) {
+            $missing = [];
+            if ($host === '') {
+                $missing[] = 'DB_HOST';
+            }
+            if ($dbName === '') {
+                $missing[] = 'DB_NAME';
+            }
+            if ($user === '') {
+                $missing[] = 'DB_USER';
+            }
+            if ($pass === '') {
+                $missing[] = 'DB_PASSWORD';
+            }
+            if (!empty($missing)) {
+                $msg = 'Faltan variables de entorno obligatorias de base de datos: ' . implode(', ', $missing);
+                error_log('[Database Config Error] ' . $msg);
+                if (PHP_SAPI === 'cli' || $throwOnError) {
+                    throw new \RuntimeException($msg);
+                }
+                self::abortJson500('DB_CONFIG_MISSING', 'Servicio de datos no configurado en el servidor.');
+            }
+        }
 
         $options = [
             PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
@@ -117,6 +142,16 @@ final class Database
             $dsn = sprintf('mysql:host=%s;port=%d;dbname=%s;charset=%s', $host, $port, $dbName, $charset);
             $options[PDO::ATTR_EMULATE_PREPARES]  = false;
             $options[PDO::ATTR_STRINGIFY_FETCHES] = false;
+            if (Secrets::bool('DB_ENCRYPT', false)) {
+                $trustCert = Secrets::bool('DB_TRUST_SERVER_CERTIFICATE', false);
+                if (defined('PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT')) {
+                    $options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = !$trustCert;
+                }
+                $sslCa = trim(Secrets::get('DB_SSL_CA', ''));
+                if ($sslCa !== '' && defined('PDO::MYSQL_ATTR_SSL_CA')) {
+                    $options[PDO::MYSQL_ATTR_SSL_CA] = $sslCa;
+                }
+            }
         }
 
         try {
@@ -132,18 +167,27 @@ final class Database
             return self::$instance;
         } catch (PDOException $e) {
             error_log(sprintf('[Database Error][%s] No se pudo conectar: %s', $driver, $e->getMessage()));
-            if (PHP_SAPI === 'cli') {
+            if (PHP_SAPI === 'cli' || $throwOnError) {
                 throw $e;
             }
-            if (!headers_sent()) {
-                http_response_code(500);
-                header('Content-Type: application/json; charset=utf-8');
-            }
-            echo json_encode([
-                'ok'    => false,
-                'error' => 'Error interno de conexión con el servicio de datos. Intenta nuevamente más tarde.',
-            ], JSON_UNESCAPED_UNICODE);
-            exit;
+            self::abortJson500('DB_CONNECTION_ERROR', 'Error interno de conexión con el servicio de datos. Intenta nuevamente más tarde.');
         }
+    }
+
+    private static function abortJson500(string $codigo, string $mensaje): never
+    {
+        while (ob_get_level() > 0) {
+            @ob_end_clean();
+        }
+        if (!headers_sent()) {
+            http_response_code(500);
+            header('Content-Type: application/json; charset=utf-8');
+        }
+        echo json_encode([
+            'ok'     => false,
+            'codigo' => $codigo,
+            'error'  => $mensaje,
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
     }
 }

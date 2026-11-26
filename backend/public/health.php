@@ -38,7 +38,7 @@ $payload = [
 // Verificación opcional de conectividad real a base de datos (?deep=1) sin penalizar el health check por defecto de Render
 if (isset($_GET['deep']) && $_GET['deep'] === '1') {
     try {
-        $pdo = Database::getConnection();
+        $pdo = Database::getConnection(true);
         $pdo->query('SELECT 1')->fetchColumn();
         $payload['db'] = 'connected';
     } catch (\Throwable $e) {

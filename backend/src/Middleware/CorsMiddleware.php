@@ -65,6 +65,10 @@ final class CorsMiddleware
             }
         }
 
+        if ($origin !== '' && !headers_sent()) {
+            header('Vary: Origin');
+        }
+
         if ($originAllowed && !headers_sent()) {
             header('Access-Control-Allow-Origin: ' . $origin);
             header('Access-Control-Allow-Credentials: true');
@@ -72,7 +76,6 @@ final class CorsMiddleware
             header('Access-Control-Allow-Headers: Content-Type, Authorization, X-CSRF-Token, X-Requested-With, Accept');
             header('Access-Control-Expose-Headers: X-Response-Time-Ms, Retry-After');
             header('Access-Control-Max-Age: 86400');
-            header('Vary: Origin');
         }
 
         $method = strtoupper((string)($_SERVER['REQUEST_METHOD'] ?? 'GET'));

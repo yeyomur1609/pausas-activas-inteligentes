@@ -4,7 +4,7 @@
  * - Estrategia Network-First para vistas HTML (excluyendo /api/ y peticiones *.php)
  */
 
-const CACHE_NAME = 'pai-static-v36';
+const CACHE_NAME = 'pai-static-v37';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -101,13 +101,23 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   const request = event.request;
-  if (request.method !== 'GET') return;
+  // Nunca interceptar métodos distintos a GET ni peticiones con encabezado Authorization
+  if (request.method !== 'GET' || request.headers.has('Authorization')) return;
 
   const url = new URL(request.url);
 
-  // Solo gestionar el mismo origen y excluir endpoints /api/ o scripts PHP dinámicos
-  if (url.origin !== self.location.origin) return;
-  if (url.pathname.includes('/api/') || url.pathname.endsWith('.php')) return;
+  // Nunca interceptar el dominio de Render ni orígenes externos
+  if (url.origin !== self.location.origin || url.hostname.endsWith('.onrender.com')) return;
+  // Nunca interceptar ni cachear rutas de API (/api, /api/*), health checks ni scripts PHP dinámicos
+  if (
+    url.pathname === '/api' ||
+    url.pathname.startsWith('/api/') ||
+    url.pathname.includes('/api/') ||
+    url.pathname === '/health' ||
+    url.pathname.endsWith('.php')
+  ) {
+    return;
+  }
 
   const acceptHeader = request.headers.get('Accept') || '';
   const cleanSegment = url.pathname.replace(/\/+$/, '').split('/').pop() || '';

@@ -10,13 +10,13 @@
  */
 const PRODUCTION_API_BASE_URL = 'https://pausas-activas-api.onrender.com/api';
 
-const hostname = (window.location && window.location.hostname) || 'localhost';
+const hostname = (window.location && window.location.hostname) || '';
 const port = (window.location && window.location.port) || '';
 const pathname = (window.location && window.location.pathname) || '/';
-const origin = (window.location && window.location.origin) || 'http://localhost';
-const protocol = (window.location && window.location.protocol) || 'http:';
+const origin = (window.location && window.location.origin) || '';
+const protocol = (window.location && window.location.protocol) || 'https:';
 
-const isLocalHost = hostname === 'localhost' || hostname === '127.0.0.1';
+const isLocalHost = hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '[::1]';
 const frontendIdx = pathname.toLowerCase().indexOf('/frontend');
 const isApacheLocalFrontend =
   isLocalHost && frontendIdx !== -1 && (port === '' || port === '80' || port === '443');

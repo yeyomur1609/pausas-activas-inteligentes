@@ -26,7 +26,7 @@ RUN apt-get update \
         > /etc/apt/sources.list.d/mssql-release.list \
     && apt-get update \
     && ACCEPT_EULA=Y apt-get install -y --no-install-recommends msodbcsql18 \
-    && docker-php-ext-install -j"$(nproc)" mbstring zip opcache \
+    && docker-php-ext-install -j"$(nproc)" mbstring zip opcache pdo_mysql \
     && pecl install sqlsrv pdo_sqlsrv \
     && docker-php-ext-enable sqlsrv pdo_sqlsrv \
     && rm -rf /var/lib/apt/lists/* /tmp/pear
@@ -39,7 +39,7 @@ RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' \
         /etc/apache2/sites-available/000-default.conf \
         /etc/apache2/apache2.conf \
         /etc/apache2/conf-available/*.conf \
-    && printf '<Directory /var/www/html/public>\n    Options -Indexes -MultiViews\n    AllowOverride All\n    CGIPassAuth On\n    SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1\n    Require all granted\n</Directory>\nServerTokens Prod\nServerSignature Off\n' \
+    && printf 'ServerName localhost\n<Directory /var/www/html/public>\n    Options -Indexes -MultiViews\n    AllowOverride All\n    CGIPassAuth On\n    SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1\n    Require all granted\n</Directory>\nServerTokens Prod\nServerSignature Off\n' \
         > /etc/apache2/conf-available/pai-public.conf \
     && a2enconf pai-public
 
@@ -66,7 +66,7 @@ RUN mkdir -p /var/www/html/storage/cache /var/www/html/storage/logs \
     && sed -i 's/\r$//' /usr/local/bin/docker-entrypoint.sh \
     && chmod +x /usr/local/bin/docker-entrypoint.sh
 
-EXPOSE 80
+EXPOSE 10000
 
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 CMD ["apache2-foreground"]
