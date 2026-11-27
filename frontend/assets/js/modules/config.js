@@ -9,7 +9,7 @@
  * 4. PRODUCTION_API_BASE_URL -> Reemplaza el dominio con la URL real generada por Render terminada en /api
  *    (o usa '/api' si activas el proxy rewrite en frontend/vercel.json con Render always-on)
  */
-const PRODUCTION_API_BASE_URL = 'https://pausas-activas-api.onrender.com/api';
+const PRODUCTION_API_BASE_URL = 'https://pausas-activas-inteligentes.onrender.com/api';
 
 const hostname = (window.location && window.location.hostname) || '';
 const port = (window.location && window.location.port) || '';
