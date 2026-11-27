@@ -16,9 +16,11 @@ services:
         value: "false"
       - key: APP_TIMEZONE
         value: America/Monterrey
+      - key: APP_URL
+        sync: false
       - key: FRONTEND_URL
         sync: false
-      - key: APP_URL
+      - key: CORS_ORIGIN
         sync: false
       - key: CORS_ALLOWED_ORIGINS
         sync: false
@@ -71,7 +73,17 @@ services:
       - key: OSM_CACHE_TTL_SECONDS
         value: "300"
       - key: OSM_USER_AGENT
-        value: PausasActivasInteligentes/3.2 (https://pausas-activas.vercel.app; soporte@pausasactivas.edu.mx)
+        value: PausasActivasInteligentes/3.2 (https://pausas-activas-inteligentes.vercel.app; soporte@pausasactivas.edu.mx)
+      - key: MAIL_PROVIDER
+        value: mailjet
+      - key: MAILJET_API_KEY
+        sync: false
+      - key: MAILJET_SECRET_KEY
+        sync: false
+      - key: MAIL_FROM_EMAIL
+        sync: false
+      - key: MAIL_FROM_NAME
+        value: Pausas Activas Inteligentes
       - key: SMTP_HOST
         value: smtp.gmail.com
       - key: SMTP_PORT
@@ -84,5 +96,3 @@ services:
         sync: false
       - key: MAIL_FROM
         sync: false
-      - key: MAIL_FROM_NAME
-        value: Pausas Activas Inteligentes
