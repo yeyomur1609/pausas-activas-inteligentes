@@ -74,83 +74,6 @@ main:focus-visible {
   outline-offset: -3px !important;
 }
 
-/* Barra superior persistente de accesibilidad rápida */
-.a11y-topbar {
-  width: 100%;
-  max-width: 100%;
-  min-width: 0;
-  min-height: var(--a11y-bar-height);
-  background-color: var(--topbar-bg);
-  border-bottom: 1px solid var(--surface-border);
-  padding: 0.4rem 0.75rem;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.45rem 0.65rem;
-  position: relative;
-  z-index: 60;
-}
-
-.a11y-topbar-label {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
-  color: var(--text-muted);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-}
-
-.a11y-controls-group {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.35rem;
-  max-width: 100%;
-}
-
-@media (min-width: 768px) {
-  .a11y-topbar {
-    padding: 0.35rem 1.25rem;
-  }
-}
-
-.a11y-pill-btn {
-  min-height: var(--touch-min);
-  min-width: var(--touch-min);
-  padding: 0.3rem 0.7rem;
-  border-radius: var(--radius-sm);
-  background-color: var(--surface-primary);
-  border: 1px solid var(--control-border);
-  color: var(--text-secondary);
-  font-size: var(--font-size-xs);
-  font-weight: 700;
-  white-space: nowrap;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  transition: border-color var(--transition-fast), color var(--transition-fast), background-color var(--transition-fast);
-}
-
-.a11y-pill-btn:hover {
-  border-color: var(--color-eucalyptus);
-  color: var(--text-primary);
-}
-
-.a11y-pill-btn[aria-pressed="true"] {
-  background-color: var(--color-eucalyptus);
-  border-color: var(--color-eucalyptus-deep);
-  color: var(--color-eucalyptus-ink);
-}
-
-.a11y-pill-btn[aria-pressed="true"]::before {
-  content: '✓ ';
-  font-weight: 700;
-}
-
 /* Escalas tipográficas dinámicas sin romper el layout (soporta clases EN y ES) */
 html:has(body.a11y-font-large),
 html:has(body.a11y-fuente-grande),
@@ -388,6 +311,7 @@ body.a11y-reducir-movimiento *::after {
 }
 
 body.auth-locked .a11y-floating-widget,
+body[data-initial-view="login"] .a11y-floating-widget,
 body[data-initial-view="404"] .a11y-floating-widget {
   bottom: 1.15rem;
 }
@@ -406,7 +330,9 @@ body[data-initial-view="404"] .a11y-floating-widget {
   }
 
   body.auth-locked .a11y-floating-widget,
+  body[data-initial-view="login"] .a11y-floating-widget,
   body[data-initial-view="404"] .a11y-floating-widget,
+  body:not(:has(#btn-fab-actibot)) .a11y-floating-widget,
   body:has(#btn-fab-actibot.hidden) .a11y-floating-widget {
     right: 1.5rem;
     bottom: 1.5rem;

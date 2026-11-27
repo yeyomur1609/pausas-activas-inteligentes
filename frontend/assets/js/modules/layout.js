@@ -1,13 +1,12 @@
 /**
  * Módulo de Layout Compartido MPA (ES Module) — Pausas Activas Inteligentes
- * Inyecta barra de accesibilidad, navbar con enlaces reales <a>, menú móvil,
- * banner de verificación, footer, widget WCAG, cajón flotante ActiBot y toast.
+ * Inyecta navbar con enlaces reales <a>, menú móvil, banner de verificación,
+ * footer, widget WCAG, cajón flotante ActiBot y toast.
  */
 import { ApiClient, getSessionUser } from './api-client.js';
 import {
   a11yState,
   applyA11yToDOM,
-  bindA11yBarEvents,
   bindA11yWidgetEvents,
   bindCookieBannerEvents,
   getSelectedParkFromStorage,
@@ -59,20 +58,9 @@ export function renderAppLayout({ activeView = detectActiveView(), includeFloati
   const mainEl = document.getElementById('main-content');
   if (!mainEl || document.querySelector('.saas-navbar')) return;
 
-  // 1. Enlace de salto, barra de accesibilidad, banner PWA y topbar móvil antes del app-shell
+  // 1. Enlace de salto, banner PWA y topbar móvil antes del app-shell
   const preShellHtml = `
     <a href="#main-content" class="skip-link">Saltar al contenido principal</a>
-
-    <aside class="a11y-topbar" aria-label="Herramientas de accesibilidad visual y motriz">
-      <span class="a11y-topbar-label">Accesibilidad:</span>
-      <div class="a11y-controls-group">
-        <button type="button" id="a11y-btn-theme" class="a11y-pill-btn" aria-pressed="true" title="Alternar entre Modo Claro y Modo Oscuro">☀️ Modo Claro</button>
-        <button type="button" id="a11y-btn-contrast" class="a11y-pill-btn" aria-pressed="false" title="Alternar Modo de Alto Contraste WCAG AAA">Alto Contraste</button>
-        <button type="button" id="a11y-btn-font" class="a11y-pill-btn" aria-pressed="false" title="Cambiar tamaño de texto (Normal, Grande, Muy Grande)">Texto: A</button>
-        <button type="button" id="a11y-btn-seated" class="a11y-pill-btn" aria-pressed="false" title="Adaptar rutinas y parques para uso sentado o en silla de ruedas">Modo Sentado</button>
-        <button type="button" id="a11y-btn-motion" class="a11y-pill-btn" aria-pressed="false" title="Reducir animaciones y movimiento">Reducir Movimiento</button>
-      </div>
-    </aside>
 
     <aside id="pwa-install-banner" class="pwa-install-banner hidden" role="region" aria-label="Recomendación para instalar la Web App">
       <div class="module-card-header">
@@ -508,7 +496,6 @@ export async function initProtectedPage(activeView, options = {}) {
   applyA11yToDOM();
   syncLayoutUserUI(authResult.user);
 
-  bindA11yBarEvents();
   bindA11yWidgetEvents();
   bindGlobalLayoutActions();
   if (activeView !== 'chatbot') {
@@ -536,7 +523,6 @@ export async function initPublicLegalPage() {
 
   applyA11yToDOM();
   syncLayoutUserUI(user);
-  bindA11yBarEvents();
   bindA11yWidgetEvents();
   bindGlobalLayoutActions();
   if (user) {

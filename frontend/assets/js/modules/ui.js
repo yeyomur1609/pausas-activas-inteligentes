@@ -278,28 +278,6 @@ export function applyA11yToDOM() {
     if (badge) badge.textContent = isEnabled ? 'Sí' : 'No';
   });
 
-  const btnTheme = document.getElementById('a11y-btn-theme');
-  const btnContrast = document.getElementById('a11y-btn-contrast');
-  const btnFont = document.getElementById('a11y-btn-font');
-  const btnSeated = document.getElementById('a11y-btn-seated');
-  const btnMotion = document.getElementById('a11y-btn-motion');
-
-  if (btnTheme) {
-    btnTheme.setAttribute('aria-pressed', String(Boolean(a11yState.tema_claro)));
-    btnTheme.textContent = a11yState.tema_claro ? '☀️ Modo Claro' : '🌙 Modo Oscuro';
-  }
-  if (btnContrast) btnContrast.setAttribute('aria-pressed', String(Boolean(a11yState.alto_contraste)));
-  if (btnFont) {
-    btnFont.setAttribute('aria-pressed', String(escala !== 'normal'));
-    btnFont.textContent =
-      escala === 'muy_grande' ? 'Texto: A++' : escala === 'grande' ? 'Texto: A+' : 'Texto: A';
-  }
-  if (btnSeated) {
-    btnSeated.setAttribute('aria-pressed', String(Boolean(a11yState.modo_sentado)));
-    btnSeated.textContent = a11yState.modo_sentado ? 'Modo Sentado: Sí' : 'Modo Sentado';
-  }
-  if (btnMotion) btnMotion.setAttribute('aria-pressed', String(Boolean(a11yState.reducir_movimiento)));
-
   const fabActiBot = document.getElementById('btn-fab-actibot');
   if (fabActiBot) {
     fabActiBot.classList.toggle('hidden', !a11yState.chatbot_habilitado);
@@ -317,71 +295,11 @@ export function applyA11yToDOM() {
   });
 }
 
-export function bindA11yBarEvents() {
-  const btnTheme = document.getElementById('a11y-btn-theme');
-  const btnContrast = document.getElementById('a11y-btn-contrast');
-  const btnFont = document.getElementById('a11y-btn-font');
-  const btnSeated = document.getElementById('a11y-btn-seated');
-  const btnMotion = document.getElementById('a11y-btn-motion');
-
-  if (btnTheme) {
-    btnTheme.addEventListener('click', () => {
-      a11yState.tema_claro = !a11yState.tema_claro;
-      applyA11yToDOM();
-      saveA11yPreferences();
-      showToast(a11yState.tema_claro ? '☀️ Modo Claro activado' : '🌙 Modo Oscuro activado', 'info');
-    });
-  }
-
-  if (btnContrast) {
-    btnContrast.addEventListener('click', () => {
-      a11yState.alto_contraste = !a11yState.alto_contraste;
-      applyA11yToDOM();
-      saveA11yPreferences();
-      showToast(
-        a11yState.alto_contraste ? 'Modo Alto Contraste activado' : 'Modo Alto Contraste desactivado',
-        'info'
-      );
-    });
-  }
-
-  if (btnFont) {
-    btnFont.addEventListener('click', () => {
-      const order = ['normal', 'grande', 'muy_grande'];
-      const current = a11yState.escala_fuente === 'muy-grande' ? 'muy_grande' : a11yState.escala_fuente;
-      a11yState.escala_fuente = order[(order.indexOf(current) + 1) % order.length];
-      applyA11yToDOM();
-      saveA11yPreferences();
-      showToast(`Escala de texto: ${a11yState.escala_fuente.replace('_', ' ')}`, 'info');
-    });
-  }
-
-  if (btnSeated) {
-    btnSeated.addEventListener('click', () => {
-      a11yState.modo_sentado = !a11yState.modo_sentado;
-      applyA11yToDOM();
-      saveA11yPreferences();
-      showToast(
-        a11yState.modo_sentado
-          ? 'Modo Sentado / Silla de Ruedas activado para todas las rutinas'
-          : 'Instrucciones estándar de pie activadas',
-        'success'
-      );
-    });
-  }
-
-  if (btnMotion) {
-    btnMotion.addEventListener('click', () => {
-      a11yState.reducir_movimiento = !a11yState.reducir_movimiento;
-      applyA11yToDOM();
-      saveA11yPreferences();
-      showToast(
-        a11yState.reducir_movimiento ? 'Animaciones reducidas' : 'Animaciones estándar activadas',
-        'info'
-      );
-    });
-  }
-}
+/**
+ * Conservado como no-op compatible con módulos existentes (p. ej. auth.js):
+ * todas las opciones de accesibilidad viven exclusivamente en el widget (#a11y-widget-root).
+ */
+export function bindA11yBarEvents() {}
 
 export function toggleA11yWidgetPanel(show, restoreFocus = false) {
   const panel = document.getElementById('a11y-widget-panel');

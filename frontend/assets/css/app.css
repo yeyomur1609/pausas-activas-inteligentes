@@ -126,7 +126,7 @@ ol {
   width: 100%;
   min-width: 0;
   max-width: 100%;
-  min-height: calc(100dvh - var(--a11y-bar-height));
+  min-height: 100dvh;
   padding-bottom: calc(var(--bottom-nav-height) + 14px);
 }
 
@@ -1569,7 +1569,7 @@ body.tema-oscuro .map-layer-btn.active {
 
 .toast-notification {
   position: fixed;
-  top: calc(var(--a11y-bar-height) + 1rem);
+  top: 4.75rem;
   right: 1rem;
   max-width: min(24rem, calc(100vw - 2rem));
   background-color: var(--color-30-surface-elevated);
@@ -2090,7 +2090,7 @@ progress.csp-progress.meter-strong::-moz-progress-bar {
 
 .pwa-install-banner {
   position: fixed;
-  top: calc(var(--a11y-bar-height) + 10px);
+  top: 4.5rem;
   left: 1rem;
   right: 1rem;
   max-width: 540px;
@@ -2157,11 +2157,6 @@ body.auth-locked #cookie-consent-banner,
 body.auth-locked #btn-close-auth-modal,
 body.auth-locked #settings-guest-notice {
   display: none !important;
-}
-
-body.auth-locked .a11y-topbar {
-  position: relative;
-  z-index: 105;
 }
 
 body.auth-locked #auth-modal-backdrop {
@@ -2726,7 +2721,6 @@ progress.csp-progress.saas-progress::-moz-progress-bar {
    GUARDIA DE SESIÓN (.auth-checking) & PÁGINA DEDICADA DE LOGIN
    ========================================================================== */
 
-body.auth-checking .a11y-topbar,
 body.auth-checking .pwa-install-banner,
 body.auth-checking .mobile-topbar,
 body.auth-checking .app-shell,
@@ -2941,8 +2935,14 @@ body:not(.auth-checking) .auth-checking-overlay {
 
 body[data-initial-view="login"] .toast-notification {
   top: auto;
-  bottom: 1.25rem;
+  bottom: 5rem;
   right: 1.25rem;
+}
+
+@media (max-width: 767px) {
+  .login-footer {
+    padding-bottom: 4.75rem;
+  }
 }
 
 @media (max-width: 919px) {
@@ -2953,6 +2953,7 @@ body[data-initial-view="login"] .toast-notification {
   body[data-initial-view="login"] .toast-notification {
     left: 1rem;
     right: 1rem;
+    bottom: 5rem;
     max-width: none;
   }
 }
