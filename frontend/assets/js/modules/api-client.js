@@ -7,6 +7,8 @@
 import { PAI_CONFIG, STORAGE_KEYS } from './config.js';
 
 const AUTH_TOKEN_STORAGE_KEY = (STORAGE_KEYS && STORAGE_KEYS.AUTH_TOKEN) || 'pai_auth_token_v1';
+const SESSION_CACHE_STORAGE_KEY = 'pai_session_cache';
+export const SESSION_CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutos
 
 let csrfToken = null;
 let memoryAuthToken = null;
@@ -101,6 +103,95 @@ export function clearAuthToken() {
       window.localStorage.removeItem(AUTH_TOKEN_STORAGE_KEY);
     }
   } catch (_ignored) {}
+}
+
+function buildCacheableUserSnapshot(user, includePhoto = true) {
+  if (!user || typeof user !== 'object' || !user.id) return null;
+  const prefs =
+    user.preferencias && typeof user.preferencias === 'object'
+      ? includePhoto
+        ? { ...user.preferencias }
+        : { ...user.preferencias, foto_perfil: '' }
+      : undefined;
+
+  return {
+    id: Number(user.id),
+    nombre: String(user.nombre || ''),
+    email: String(user.email || ''),
+    rol: String(user.rol || 'usuario'),
+    ocupacion: String(user.ocupacion || 'estudiante'),
+    email_verificado: Boolean(user.email_verificado),
+    activo: user.activo !== undefined ? Boolean(user.activo) : true,
+    horas_restantes_verificacion: user.horas_restantes_verificacion ?? null,
+    dias_restantes_verificacion: user.dias_restantes_verificacion ?? null,
+    racha_actual: Number(user.racha_actual || 0),
+    mejor_racha: Number(user.mejor_racha || 0),
+    ultima_pausa_fecha: user.ultima_pausa_fecha || null,
+    meta_diaria_min: Number(user.meta_diaria_min || 15),
+    preferencias: prefs
+  };
+}
+
+export function saveSessionCache(user) {
+  const snapshot = buildCacheableUserSnapshot(user, true);
+  if (!snapshot) return;
+  try {
+    if (typeof window !== 'undefined' && window.sessionStorage) {
+      const payload = JSON.stringify({ user: snapshot, checkedAt: Date.now() });
+      window.sessionStorage.setItem(SESSION_CACHE_STORAGE_KEY, payload);
+    }
+  } catch (_quotaErr) {
+    // Reintentar sin foto base64 si sessionStorage alcanza cuota
+    try {
+      const slimSnapshot = buildCacheableUserSnapshot(user, false);
+      if (slimSnapshot && typeof window !== 'undefined' && window.sessionStorage) {
+        window.sessionStorage.setItem(
+          SESSION_CACHE_STORAGE_KEY,
+          JSON.stringify({ user: slimSnapshot, checkedAt: Date.now() })
+        );
+      }
+    } catch (_ignored) {}
+  }
+}
+
+export function clearSessionCache() {
+  try {
+    if (typeof window !== 'undefined' && window.sessionStorage) {
+      window.sessionStorage.removeItem(SESSION_CACHE_STORAGE_KEY);
+    }
+  } catch (_ignored) {}
+}
+
+export function getCachedSession(maxAgeMs = SESSION_CACHE_TTL_MS) {
+  try {
+    if (typeof window === 'undefined' || !window.sessionStorage) return null;
+    const raw = window.sessionStorage.getItem(SESSION_CACHE_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (
+      !parsed ||
+      typeof parsed !== 'object' ||
+      !parsed.user ||
+      !parsed.user.id ||
+      typeof parsed.checkedAt !== 'number'
+    ) {
+      clearSessionCache();
+      return null;
+    }
+    const ageMs = Date.now() - parsed.checkedAt;
+    if (ageMs < 0 || ageMs >= maxAgeMs) {
+      clearSessionCache();
+      return null;
+    }
+    return {
+      user: parsed.user,
+      checkedAt: parsed.checkedAt,
+      ageMs
+    };
+  } catch (_ignored) {
+    clearSessionCache();
+    return null;
+  }
 }
 
 export function getSessionUser() {
@@ -276,6 +367,13 @@ export async function request(endpoint, options = {}) {
     setAuthToken(nextJwt);
   }
 
+  const nextUser =
+    payload && payload.ok !== false && payload.usuario && payload.usuario.id ? payload.usuario : null;
+  if (nextUser) {
+    currentSessionUser = nextUser;
+    saveSessionCache(nextUser);
+  }
+
   if (
     response.status === 403 &&
     payload &&
@@ -295,6 +393,7 @@ export async function request(endpoint, options = {}) {
     if (response.status === 401) {
       const isAuthEndpoint = String(endpoint || '').includes('auth.php');
       if (!isAuthEndpoint) {
+        clearSessionCache();
         clearAuthToken();
         currentSessionUser = null;
       }
@@ -328,10 +427,11 @@ export async function request(endpoint, options = {}) {
   return payload;
 }
 
-export async function syncSession() {
+export async function syncSession(options = {}) {
   const res = await request('auth.php', {
     method: 'GET',
-    params: { accion: 'session' }
+    params: { accion: 'session' },
+    silentColdStart: Boolean(options.silentColdStart)
   });
   if (res) {
     if (res.csrf_token) {
@@ -342,7 +442,13 @@ export async function syncSession() {
     } else if (!res.autenticado) {
       clearAuthToken();
     }
-    currentSessionUser = res.autenticado ? res.usuario : null;
+    if (res.autenticado && res.usuario) {
+      currentSessionUser = res.usuario;
+      saveSessionCache(res.usuario);
+    } else {
+      currentSessionUser = null;
+      clearSessionCache();
+    }
   }
   return res;
 }
@@ -355,6 +461,9 @@ export const ApiClient = {
   getAuthToken,
   setAuthToken,
   clearAuthToken,
+  saveSessionCache,
+  getCachedSession,
+  clearSessionCache,
   getSessionUser,
   setSessionUser,
 
@@ -490,6 +599,7 @@ export const ApiClient = {
           body: { accion: 'logout' }
         });
       } finally {
+        clearSessionCache();
         clearAuthToken();
         currentSessionUser = null;
       }
@@ -553,6 +663,7 @@ export const ApiClient = {
           body: { accion: 'eliminar_cuenta', confirmacion, password_actual: passwordActual }
         });
       } finally {
+        clearSessionCache();
         clearAuthToken();
         currentSessionUser = null;
       }

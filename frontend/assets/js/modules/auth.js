@@ -1,7 +1,16 @@
 /**
  * Módulo de Autenticación, Guardia de Sesión MPA y Página de Login (ES Module)
  */
-import { ApiClient, clearAuthToken, setAuthToken, setSessionUser } from './api-client.js';
+import {
+  ApiClient,
+  clearAuthToken,
+  clearSessionCache,
+  getAuthToken,
+  getCachedSession,
+  saveSessionCache,
+  setAuthToken,
+  setSessionUser
+} from './api-client.js';
 import {
   applyA11yToDOM,
   bindA11yBarEvents,
@@ -34,7 +43,18 @@ const VALID_AUTH_TABS = new Set([
   'recuperar_confirmar'
 ]);
 
+const SESSION_REVALIDATE_AFTER_MS = 60 * 1000; // Revalidar silenciosamente en segundo plano tras 1 min
 let pendingResetToken = '';
+
+// Si el usuario ya tiene sesión válida en caché (sessionStorage < 5 min), retirar el overlay síncronamente
+// al evaluar el módulo para evitar cualquier destello de "Verificando tu sesión…" al cambiar de apartado.
+if (typeof document !== 'undefined' && document.body && document.body.classList.contains('auth-checking')) {
+  const fastCached = getCachedSession();
+  if (fastCached && fastCached.user) {
+    setSessionUser(fastCached.user);
+    document.body.classList.remove('auth-checking');
+  }
+}
 
 export function sanitizeNextTarget(rawNext) {
   if (!rawNext || typeof rawNext !== 'string') return 'index.html';
@@ -152,11 +172,70 @@ export async function checkUrlAuthTokens() {
   return null;
 }
 
+function redirectToLoginUnauthenticated(forwardAuthAction = true) {
+  clearSessionCache();
+  clearAuthToken();
+  setSessionUser(null);
+  const searchParams = new URLSearchParams(window.location.search);
+  const hasAuthAction =
+    forwardAuthAction &&
+    Boolean(
+      searchParams.get('magic_token') ||
+        searchParams.get('token') ||
+        searchParams.get('vista') ||
+        searchParams.get('accion')
+    );
+  window.location.replace(buildLoginUrl('', getCurrentNextTarget(), hasAuthAction));
+}
+
+function revalidateSessionInBackground(onBackgroundRefresh) {
+  ApiClient.syncSession({ silentColdStart: true })
+    .then((freshData) => {
+      if (!freshData || !freshData.autenticado || !freshData.usuario) {
+        redirectToLoginUnauthenticated(false);
+        return;
+      }
+      setSessionUser(freshData.usuario);
+      saveSessionCache(freshData.usuario);
+      hydrateUserPreferencesFromServer(freshData.usuario);
+      if (typeof onBackgroundRefresh === 'function') {
+        onBackgroundRefresh(freshData.usuario, freshData);
+      }
+    })
+    .catch((err) => {
+      if (err && err.status === 401) {
+        redirectToLoginUnauthenticated(false);
+      }
+      // Ignorar abortos por navegación rápida o cortes transitorios de red para no interrumpir la UI
+    });
+}
+
 /**
- * Guardia obligatoria para ventanas protegidas.
- * Si no existe sesión válida, redirige de inmediato a login.html?next=... sin mostrar contenido privado.
+ * Guardia obligatoria para ventanas protegidas con caché síncrona en sessionStorage (< 5 min):
+ * - Si existe sesión válida en caché: permite renderizar de inmediato sin overlay y revalida en segundo plano si hace falta.
+ * - Si no existe caché: muestra el overlay "Verificando tu sesión…" hasta confirmar con el servidor.
  */
-export async function requireAuthOrRedirect() {
+export async function requireAuthOrRedirect({ onBackgroundRefresh = null } = {}) {
+  const cached = getCachedSession();
+  if (cached && cached.user) {
+    if (document.body) {
+      document.body.classList.remove('auth-checking');
+    }
+    setSessionUser(cached.user);
+    hydrateUserPreferencesFromServer(cached.user);
+
+    // Refrescar silenciosamente en segundo plano si la caché supera 1 minuto o falta el token Bearer
+    if (cached.ageMs >= SESSION_REVALIDATE_AFTER_MS || !getAuthToken()) {
+      revalidateSessionInBackground(onBackgroundRefresh);
+    }
+
+    return {
+      user: cached.user,
+      sessionData: { ok: true, autenticado: true, usuario: cached.user },
+      fromCache: true
+    };
+  }
+
   let sessionData = null;
   try {
     sessionData = await ApiClient.syncSession();
@@ -165,21 +244,14 @@ export async function requireAuthOrRedirect() {
   }
 
   if (!sessionData || !sessionData.autenticado || !sessionData.usuario) {
-    clearAuthToken();
-    const searchParams = new URLSearchParams(window.location.search);
-    const hasAuthAction = Boolean(
-      searchParams.get('magic_token') ||
-        searchParams.get('token') ||
-        searchParams.get('vista') ||
-        searchParams.get('accion')
-    );
-    window.location.replace(buildLoginUrl('', getCurrentNextTarget(), hasAuthAction));
+    redirectToLoginUnauthenticated(true);
     return null;
   }
 
   setSessionUser(sessionData.usuario);
+  saveSessionCache(sessionData.usuario);
   hydrateUserPreferencesFromServer(sessionData.usuario);
-  return { user: sessionData.usuario, sessionData };
+  return { user: sessionData.usuario, sessionData, fromCache: false };
 }
 
 export async function syncOptionalSession() {
@@ -187,12 +259,14 @@ export async function syncOptionalSession() {
     const sessionData = await ApiClient.syncSession();
     if (sessionData && sessionData.autenticado && sessionData.usuario) {
       setSessionUser(sessionData.usuario);
+      saveSessionCache(sessionData.usuario);
       hydrateUserPreferencesFromServer(sessionData.usuario);
       return sessionData.usuario;
     }
   } catch (_err) {
     // Ruta pública sin sesión activa
   }
+  clearSessionCache();
   setSessionUser(null);
   return null;
 }
@@ -203,6 +277,7 @@ export async function handleLogout() {
   } catch (_err) {
     // Limpiar sesión cliente igualmente
   }
+  clearSessionCache();
   clearAuthToken();
   setSessionUser(null);
   window.location.replace('login.html');

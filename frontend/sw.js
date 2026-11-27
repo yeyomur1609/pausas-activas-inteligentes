@@ -4,7 +4,7 @@
  * - Estrategia Network-First para vistas HTML (excluyendo /api/ y peticiones *.php)
  */
 
-const CACHE_NAME = 'pai-static-v37';
+const CACHE_NAME = 'pai-static-v38';
 const STATIC_ASSETS = [
   './',
   './index.html',

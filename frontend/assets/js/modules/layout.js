@@ -491,7 +491,12 @@ export async function initProtectedPage(activeView, options = {}) {
   loadLocalA11yPreferences();
   applyA11yToDOM();
 
-  const authResult = await requireAuthOrRedirect();
+  const authResult = await requireAuthOrRedirect({
+    onBackgroundRefresh: (freshUser) => {
+      applyA11yToDOM();
+      syncLayoutUserUI(freshUser);
+    }
+  });
   if (!authResult) return null;
 
   renderAppLayout({

@@ -2775,8 +2775,19 @@ body:not(.auth-checking) .auth-checking-overlay {
 }
 
 @media (prefers-reduced-motion: no-preference) {
+  .auth-checking-card {
+    opacity: 0;
+    animation: authCardReveal 0.16s ease-out 0.12s forwards;
+  }
+
   .auth-spinner {
     animation: authSpin 0.8s linear infinite;
+  }
+}
+
+@keyframes authCardReveal {
+  to {
+    opacity: 1;
   }
 }
 
