@@ -123,13 +123,18 @@ export function cleanAuthQueryParamsPreserveNext() {
 
 export async function checkUrlAuthTokens() {
   const params = new URLSearchParams(window.location.search);
-  const magicToken = params.get('magic_token');
   const vista = params.get('vista');
   const accion = params.get('accion');
-  const verifyToken = params.get('token');
+  const rawToken = params.get('token') || '';
+  const magicToken =
+    params.get('magic_token') ||
+    params.get('magicToken') ||
+    ((vista === 'magic-link' || vista === 'magic_link' || accion === 'magic_link') ? rawToken : '');
+  const verifyToken = rawToken;
   const emailParam = params.get('email') || '';
 
   if (magicToken) {
+    showToast('Validando tu Enlace Mágico…', 'info');
     try {
       const res = await ApiClient.auth.validarMagicLink(magicToken, emailParam, '');
       if (res && res.token) {
@@ -137,6 +142,7 @@ export async function checkUrlAuthTokens() {
       }
       if (res && res.usuario) {
         setSessionUser(res.usuario);
+        saveSessionCache(res.usuario);
         hydrateUserPreferencesFromServer(res.usuario);
         showToast('¡Sesión iniciada con Enlace Mágico y correo confirmado!', 'success');
         return res.usuario;
@@ -152,6 +158,7 @@ export async function checkUrlAuthTokens() {
   const isVerifyAction =
     vista === 'verificar-email' || vista === 'verificar_email' || accion === 'verificar_email';
   if (isVerifyAction && verifyToken) {
+    showToast('Verificando tu correo electrónico…', 'info');
     try {
       const res = await ApiClient.auth.verificarEmail(emailParam, '', verifyToken);
       if (res && res.token) {
@@ -159,6 +166,7 @@ export async function checkUrlAuthTokens() {
       }
       if (res && res.usuario) {
         setSessionUser(res.usuario);
+        saveSessionCache(res.usuario);
         hydrateUserPreferencesFromServer(res.usuario);
       }
       showToast(res.mensaje || '¡Correo electrónico verificado con éxito!', 'success');

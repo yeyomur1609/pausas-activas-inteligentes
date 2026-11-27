@@ -235,18 +235,82 @@ final class Secrets
             explode(',', $raw)
         ));
 
-        // Autorizar automáticamente FRONTEND_URL (dominio de Vercel en producción)
-        $frontendUrl = rtrim(trim(self::get('FRONTEND_URL', '')), '/');
-        if ($frontendUrl !== '') {
-            $parsed = parse_url($frontendUrl);
-            if (is_array($parsed) && !empty($parsed['scheme']) && !empty($parsed['host'])) {
-                $origin = $parsed['scheme'] . '://' . $parsed['host']
-                    . (!empty($parsed['port']) ? ':' . (int)$parsed['port'] : '');
-                $origins[] = rtrim($origin, '/');
+        // Autorizar automáticamente FRONTEND_URL, CORS_ORIGIN y APP_URL (dominio de Vercel en producción)
+        foreach (['FRONTEND_URL', 'CORS_ORIGIN', 'APP_URL'] as $urlKey) {
+            $candidateUrl = rtrim(trim(self::get($urlKey, '')), '/');
+            if ($candidateUrl !== '') {
+                $parsed = parse_url($candidateUrl);
+                if (is_array($parsed) && !empty($parsed['scheme']) && !empty($parsed['host'])) {
+                    $origin = $parsed['scheme'] . '://' . $parsed['host']
+                        . (!empty($parsed['port']) ? ':' . (int)$parsed['port'] : '');
+                    $origins[] = rtrim($origin, '/');
+                }
             }
         }
 
         return array_values(array_unique($origins));
+    }
+
+    /**
+     * Devuelve la URL pública del Frontend para construir enlaces de correo (verificación, magic link, reset).
+     * Prioridad: APP_URL -> FRONTEND_URL -> CORS_ORIGIN -> primer origen HTTPS -> respaldo Vercel de producción.
+     */
+    public static function appUrl(): string
+    {
+        foreach (['APP_URL', 'FRONTEND_URL', 'CORS_ORIGIN'] as $key) {
+            $val = rtrim(trim(self::get($key, '')), '/');
+            if ($val !== '' && filter_var($val, FILTER_VALIDATE_URL) !== false) {
+                return $val;
+            }
+        }
+
+        foreach (self::allowedOrigins() as $origin) {
+            if (str_starts_with($origin, 'https://')) {
+                return rtrim($origin, '/');
+            }
+        }
+
+        return self::isProduction()
+            ? 'https://pausas-activas-inteligentes.vercel.app'
+            : 'http://localhost:3000';
+    }
+
+    /**
+     * Configuración unificada de correo transaccional (Mailjet Send API v3.1 prioritario + respaldo SMTP/PHPMailer).
+     *
+     * @return array{
+     *   provider:string,
+     *   mailjet_api_key:string,
+     *   mailjet_secret_key:string,
+     *   from_email:string,
+     *   from_name:string,
+     *   smtp_host:string,
+     *   smtp_port:int,
+     *   smtp_secure:string,
+     *   smtp_user:string,
+     *   smtp_pass:string
+     * }
+     */
+    public static function mailConfig(): array
+    {
+        $smtpUser = trim(self::get('SMTP_USER', ''));
+        $fromEmail = trim(self::get('MAIL_FROM_EMAIL', ''));
+        if ($fromEmail === '') {
+            $fromEmail = trim(self::get('MAIL_FROM', $smtpUser));
+        }
+
+        return [
+            'provider'           => strtolower(trim(self::get('MAIL_PROVIDER', ''))),
+            'mailjet_api_key'    => trim(self::get('MAILJET_API_KEY', '')),
+            'mailjet_secret_key' => trim(self::get('MAILJET_SECRET_KEY', '')),
+            'from_email'         => $fromEmail,
+            'from_name'          => trim(self::get('MAIL_FROM_NAME', 'Pausas Activas Inteligentes')) ?: 'Pausas Activas Inteligentes',
+            'smtp_host'          => trim(self::get('SMTP_HOST', '')),
+            'smtp_port'          => self::int('SMTP_PORT', 587),
+            'smtp_secure'        => strtolower(trim(self::get('SMTP_SECURE', 'tls'))),
+            'smtp_user'          => $smtpUser,
+            'smtp_pass'          => str_replace(' ', '', self::get('SMTP_PASS', '')),
+        ];
     }
 
     public static function isProduction(): bool

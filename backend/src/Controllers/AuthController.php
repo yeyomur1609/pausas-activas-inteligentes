@@ -255,6 +255,9 @@ final class AuthController
         );
 
         $envio = EmailService::enviarVerificacionCuenta($email, $nombre, $cred['token'], $cred['codigo'], $ttl);
+        if (empty($envio['enviado'])) {
+            error_log('[AuthController Mail Warning] Falló el envío del correo de verificación en registro para: ' . $email);
+        }
 
         // Autenticar inmediatamente (JWT Bearer stateless + sesión de respaldo local; 7 días de gracia)
         $jwt = AuthMiddleware::loginUserSession($nuevoUsuario);
@@ -263,13 +266,16 @@ final class AuthController
             'ok'                    => true,
             'autenticado'           => true,
             'requiere_verificacion' => true,
+            'correo_enviado'        => !empty($envio['enviado']),
             'email'                 => $email,
             'token'                 => $jwt,
             'csrf_token'            => CsrfMiddleware::getToken(),
             'usuario'               => UsuarioModel::toPublicArray($nuevoUsuario),
-            'mensaje'               => '¡Cuenta creada y sesión iniciada! Te enviamos un correo de confirmación; tienes 7 días para verificar tu cuenta.',
+            'mensaje'               => !empty($envio['enviado'])
+                ? '¡Cuenta creada y sesión iniciada! Te enviamos un correo de confirmación; tienes 7 días para verificar tu cuenta.'
+                : '¡Cuenta creada y sesión iniciada! No pudimos entregar el correo de confirmación ahora; puedes reenviarlo desde Ajustes.',
         ];
-        if (Secrets::get('APP_ENV', 'development') !== 'production') {
+        if (!Secrets::isProduction()) {
             $payloadResp['verificacion'] = $envio;
         }
         self::json(201, $payloadResp);
@@ -326,13 +332,16 @@ final class AuthController
             $ttl  = Secrets::int('EMAIL_VERIFY_EXPIRY_MINUTES', 10080);
             UsuarioModel::refreshVerificationToken((int)$user['id'], $cred['token_hash'], $cred['codigo_hash'], $ttl);
             $envio = EmailService::enviarVerificacionCuenta($email, (string)$user['nombre'], $cred['token'], $cred['codigo'], $ttl);
+            if (empty($envio['enviado'])) {
+                error_log('[AuthController Mail Warning] Falló el reenvío de verificación para: ' . $email);
+            }
         }
 
         $resp = [
             'ok'      => true,
             'mensaje' => 'Si la cuenta se encuentra pendiente de confirmación, hemos enviado un nuevo enlace y código de 6 dígitos a tu correo.',
         ];
-        if (Secrets::get('APP_ENV', 'development') !== 'production' && $envio !== null) {
+        if (!Secrets::isProduction() && $envio !== null) {
             $resp['verificacion'] = $envio;
         }
         self::json(200, $resp);
@@ -362,6 +371,9 @@ final class AuthController
                 RateLimitMiddleware::clientIp()
             );
             $preview = EmailService::enviarMagicLink($email, (string)$user['nombre'], $cred['token'], $cred['codigo'], $ttl);
+            if (empty($preview['enviado'])) {
+                error_log('[AuthController Mail Warning] Falló el envío del Enlace Mágico para: ' . $email);
+            }
         }
 
         $resp = [
@@ -369,7 +381,7 @@ final class AuthController
             'email'   => $email,
             'mensaje' => "Si el correo {$email} está registrado, recibirás un enlace mágico y un código de 6 dígitos válidos por {$ttl} minutos.",
         ];
-        if (Secrets::get('APP_ENV', 'development') !== 'production' && $preview !== null) {
+        if (!Secrets::isProduction() && $preview !== null) {
             $resp['verificacion'] = $preview;
         }
         self::json(200, $resp);
@@ -380,7 +392,7 @@ final class AuthController
      */
     private static function validarMagicLink(array $body): void
     {
-        $token  = trim((string)($body['token'] ?? ''));
+        $token  = trim((string)($body['token'] ?? $body['magic_token'] ?? ''));
         $email  = strtolower(trim((string)($body['email'] ?? '')));
         $codigo = preg_replace('/\D/', '', (string)($body['codigo'] ?? '')) ?? '';
 

@@ -1,6 +1,7 @@
 <?php
 // ARCHIVO: backend/src/Services/EmailService.php
-// Servicio de validación de correo real (MX + anti-desechables) y envío SMTP con PHPMailer bajo paleta 60-30-10.
+// Servicio de validación de correo real (MX + anti-desechables) y envío transaccional
+// prioritario vía Mailjet Send API v3.1 (HTTPS) con respaldo opcional SMTP/PHPMailer.
 declare(strict_types=1);
 
 namespace App\Services;
@@ -11,6 +12,7 @@ use PHPMailer\PHPMailer\PHPMailer;
 
 final class EmailService
 {
+    private const MAILJET_SEND_API_URL = 'https://api.mailjet.com/v3.1/send';
     private const DOMINIOS_DESECHABLES = [
         'ejemplo.com', 'example.com', 'correo.com', 'email.com', 'test.com',
         'prueba.com', 'fake.com', 'falso.com', 'dominio.com', 'mailinator.com',
@@ -100,14 +102,7 @@ final class EmailService
 
     private static function frontendBaseUrl(): string
     {
-        $url = trim(Secrets::get('FRONTEND_URL', ''));
-        if ($url === '') {
-            $url = trim(Secrets::get('APP_URL', Secrets::isProduction() ? '' : 'http://localhost:3000'));
-        }
-        if ($url === '' && Secrets::isProduction()) {
-            error_log('[EmailService Warning] FRONTEND_URL no está configurado en producción.');
-        }
-        return rtrim($url, '/');
+        return Secrets::appUrl();
     }
 
     /**
@@ -353,7 +348,10 @@ HTML;
     }
 
     /**
-     * @return array{enviado:bool,modo_desarrollo:bool,enlace_preview:?string,codigo_preview:?string}
+     * Despacha correo transaccional priorizando Mailjet Send API v3.1 (HTTPS)
+     * y usando SMTP/PHPMailer solo como respaldo si MAIL_PROVIDER != 'mailjet' o faltan llaves de Mailjet.
+     *
+     * @return array{enviado:bool,proveedor:string,modo_desarrollo:bool,enlace_preview:?string,codigo_preview:?string}
      */
     private static function despacharCorreo(
         string $paraEmail,
@@ -364,58 +362,44 @@ HTML;
         string $enlacePreview,
         string $codigoPreview
     ): array {
-        $smtpHost = Secrets::get('SMTP_HOST', '');
-        $smtpUser = Secrets::get('SMTP_USER', '');
-        $smtpPass = str_replace(' ', '', Secrets::get('SMTP_PASS', ''));
-        $esDev = Secrets::get('APP_ENV', 'development') !== 'production';
+        $cfg = Secrets::mailConfig();
+        $esDev = !Secrets::isProduction();
+        $destinatarioLimpio = preg_replace('/[\r\n<>"]/', '', trim($paraNombre)) ?: 'Usuario';
 
-        if ($smtpHost !== '' && $smtpUser !== '' && $smtpPass !== '' && class_exists(PHPMailer::class)) {
-            $mail = new PHPMailer(true);
-            try {
-                $puerto = Secrets::int('SMTP_PORT', 587);
-                $seguridad = strtolower(Secrets::get('SMTP_SECURE', 'tls'));
+        $tieneMailjet = $cfg['mailjet_api_key'] !== '' && $cfg['mailjet_secret_key'] !== '';
+        $provider = $cfg['provider'];
+        $debeUsarMailjet = ($provider === '' || $provider === 'mailjet') && $tieneMailjet;
 
-                $mail->isSMTP();
-                $mail->Host       = $smtpHost;
-                $mail->Port       = $puerto;
-                $mail->SMTPAuth   = true;
-                $mail->Username   = $smtpUser;
-                $mail->Password   = $smtpPass;
-                $mail->CharSet    = 'UTF-8';
-                $mail->Timeout    = 12;
-                $mail->SMTPSecure = ($seguridad === 'ssl' || $puerto === 465)
-                    ? PHPMailer::ENCRYPTION_SMTPS
-                    : PHPMailer::ENCRYPTION_STARTTLS;
-
-                $remitente = Secrets::get('MAIL_FROM', $smtpUser);
-                if (!filter_var($remitente, FILTER_VALIDATE_EMAIL)) {
-                    $remitente = $smtpUser;
-                }
-
-                $mail->setFrom($remitente, Secrets::get('MAIL_FROM_NAME', 'Pausas Activas Inteligentes'));
-                $mail->addAddress($paraEmail, preg_replace('/[\r\n<>"]/', '', $paraNombre) ?: 'Usuario');
-                $mail->isHTML(true);
-                $mail->Subject = $asunto;
-                $mail->Body    = $html;
-                $mail->AltBody = $textoPlano;
-
-                $mail->send();
-
+        if ($debeUsarMailjet) {
+            if (self::enviarPorMailjet($cfg, $paraEmail, $destinatarioLimpio, $asunto, $html, $textoPlano)) {
                 return [
                     'enviado'         => true,
+                    'proveedor'       => 'mailjet',
                     'modo_desarrollo' => false,
                     'enlace_preview'  => null,
                     'codigo_preview'  => null,
                 ];
-            } catch (PHPMailerException $e) {
-                error_log('[EmailService SMTP Error] ' . $mail->ErrorInfo . ' | ' . $e->getMessage());
+            }
+        } else {
+            if ($provider === 'mailjet' && !$tieneMailjet) {
+                error_log('[EmailService Warning] MAIL_PROVIDER=mailjet pero faltan MAILJET_API_KEY o MAILJET_SECRET_KEY; evaluando respaldo SMTP.');
+            }
+            if (self::enviarPorSmtp($cfg, $paraEmail, $destinatarioLimpio, $asunto, $html, $textoPlano)) {
+                return [
+                    'enviado'         => true,
+                    'proveedor'       => 'smtp',
+                    'modo_desarrollo' => false,
+                    'enlace_preview'  => null,
+                    'codigo_preview'  => null,
+                ];
             }
         }
 
-        // En desarrollo local sin credenciales SMTP configuradas, devolver vista previa segura para pruebas
+        // En desarrollo local sin proveedor activo, devolver vista previa segura para pruebas
         if ($esDev) {
             return [
                 'enviado'         => true,
+                'proveedor'       => 'dev_preview',
                 'modo_desarrollo' => true,
                 'enlace_preview'  => $enlacePreview,
                 'codigo_preview'  => $codigoPreview,
@@ -424,9 +408,187 @@ HTML;
 
         return [
             'enviado'         => false,
+            'proveedor'       => $debeUsarMailjet ? 'mailjet' : ($provider !== '' ? $provider : 'none'),
             'modo_desarrollo' => false,
             'enlace_preview'  => null,
             'codigo_preview'  => null,
         ];
+    }
+
+    /**
+     * Envía un correo mediante Mailjet Send API v3.1 (HTTPS + Basic Auth MAILJET_API_KEY:MAILJET_SECRET_KEY).
+     *
+     * @param array<string, mixed> $cfg
+     */
+    private static function enviarPorMailjet(
+        array $cfg,
+        string $paraEmail,
+        string $paraNombre,
+        string $asunto,
+        string $html,
+        string $textoPlano
+    ): bool {
+        if (!function_exists('curl_init')) {
+            error_log('[EmailService Mailjet Error] La extensión cURL de PHP no está disponible.');
+            return false;
+        }
+
+        $fromEmail = (string)($cfg['from_email'] ?? '');
+        $fromName  = (string)($cfg['from_name'] ?? 'Pausas Activas Inteligentes');
+        if ($fromEmail === '' || filter_var($fromEmail, FILTER_VALIDATE_EMAIL) === false) {
+            error_log('[EmailService Mailjet Error] MAIL_FROM_EMAIL no configurado o con formato inválido.');
+            return false;
+        }
+
+        $payload = [
+            'Messages' => [
+                [
+                    'From' => [
+                        'Email' => $fromEmail,
+                        'Name'  => $fromName,
+                    ],
+                    'To' => [
+                        [
+                            'Email' => $paraEmail,
+                            'Name'  => $paraNombre,
+                        ],
+                    ],
+                    'Subject'  => $asunto,
+                    'HTMLPart' => $html,
+                    'TextPart' => $textoPlano,
+                ],
+            ],
+        ];
+
+        $payloadJson = json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        if ($payloadJson === false) {
+            error_log('[EmailService Mailjet Error] No se pudo serializar el payload JSON.');
+            return false;
+        }
+
+        $ch = curl_init(self::MAILJET_SEND_API_URL);
+        if ($ch === false) {
+            error_log('[EmailService Mailjet Error] No se pudo inicializar cURL.');
+            return false;
+        }
+
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST           => true,
+            CURLOPT_POSTFIELDS     => $payloadJson,
+            CURLOPT_HTTPAUTH       => CURLAUTH_BASIC,
+            CURLOPT_USERPWD        => (string)$cfg['mailjet_api_key'] . ':' . (string)$cfg['mailjet_secret_key'],
+            CURLOPT_HTTPHEADER     => [
+                'Content-Type: application/json; charset=utf-8',
+                'Accept: application/json',
+            ],
+            CURLOPT_CONNECTTIMEOUT => 6,
+            CURLOPT_TIMEOUT        => 15,
+            CURLOPT_SSL_VERIFYPEER => true,
+            CURLOPT_SSL_VERIFYHOST => 2,
+        ]);
+
+        $raw       = curl_exec($ch);
+        $httpCode  = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curlErrno = curl_errno($ch);
+        $curlError = curl_error($ch);
+        curl_close($ch);
+
+        if ($raw === false || $curlErrno !== 0) {
+            error_log(sprintf(
+                '[EmailService Mailjet cURL Error] errno=%d err=%s to=%s',
+                $curlErrno,
+                $curlError,
+                $paraEmail
+            ));
+            return false;
+        }
+
+        $rawStr = (string)$raw;
+        $decoded = json_decode($rawStr, true);
+
+        if ($httpCode >= 400 || $httpCode < 200) {
+            $resumenBody = mb_substr(preg_replace('/\s+/', ' ', $rawStr) ?? $rawStr, 0, 500, 'UTF-8');
+            error_log(sprintf(
+                '[EmailService Mailjet HTTP Error] status=%d to=%s body=%s',
+                $httpCode,
+                $paraEmail,
+                $resumenBody
+            ));
+            return false;
+        }
+
+        $msgStatus = is_array($decoded) ? strtolower((string)($decoded['Messages'][0]['Status'] ?? '')) : '';
+        if ($msgStatus !== 'success') {
+            $resumenBody = mb_substr(preg_replace('/\s+/', ' ', $rawStr) ?? $rawStr, 0, 500, 'UTF-8');
+            error_log(sprintf(
+                '[EmailService Mailjet Delivery Error] status=%d msg_status=%s to=%s body=%s',
+                $httpCode,
+                $msgStatus !== '' ? $msgStatus : 'unknown',
+                $paraEmail,
+                $resumenBody
+            ));
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Respaldo opcional mediante PHPMailer/SMTP cuando MAIL_PROVIDER != 'mailjet' o faltan llaves de Mailjet.
+     *
+     * @param array<string, mixed> $cfg
+     */
+    private static function enviarPorSmtp(
+        array $cfg,
+        string $paraEmail,
+        string $paraNombre,
+        string $asunto,
+        string $html,
+        string $textoPlano
+    ): bool {
+        $smtpHost = (string)($cfg['smtp_host'] ?? '');
+        $smtpUser = (string)($cfg['smtp_user'] ?? '');
+        $smtpPass = (string)($cfg['smtp_pass'] ?? '');
+
+        if ($smtpHost === '' || $smtpUser === '' || $smtpPass === '' || !class_exists(PHPMailer::class)) {
+            return false;
+        }
+
+        $mail = new PHPMailer(true);
+        try {
+            $puerto = (int)($cfg['smtp_port'] ?? 587);
+            $seguridad = strtolower((string)($cfg['smtp_secure'] ?? 'tls'));
+
+            $mail->isSMTP();
+            $mail->Host       = $smtpHost;
+            $mail->Port       = $puerto;
+            $mail->SMTPAuth   = true;
+            $mail->Username   = $smtpUser;
+            $mail->Password   = $smtpPass;
+            $mail->CharSet    = 'UTF-8';
+            $mail->Timeout    = 12;
+            $mail->SMTPSecure = ($seguridad === 'ssl' || $puerto === 465)
+                ? PHPMailer::ENCRYPTION_SMTPS
+                : PHPMailer::ENCRYPTION_STARTTLS;
+
+            $remitente = (string)($cfg['from_email'] ?? $smtpUser);
+            if (!filter_var($remitente, FILTER_VALIDATE_EMAIL)) {
+                $remitente = $smtpUser;
+            }
+
+            $mail->setFrom($remitente, (string)($cfg['from_name'] ?? 'Pausas Activas Inteligentes'));
+            $mail->addAddress($paraEmail, $paraNombre);
+            $mail->isHTML(true);
+            $mail->Subject = $asunto;
+            $mail->Body    = $html;
+            $mail->AltBody = $textoPlano;
+
+            $mail->send();
+            return true;
+        } catch (PHPMailerException $e) {
+            error_log('[EmailService SMTP Error] ' . $mail->ErrorInfo . ' | ' . $e->getMessage());
+            return false;
+        }
     }
 }
