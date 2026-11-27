@@ -1,7 +1,7 @@
 # ARCHIVO: backend/Dockerfile
 # Imagen de producción para Render Free (Web Service Docker):
 # PHP 8.2 + Apache + Microsoft ODBC Driver 18 + pdo_sqlsrv/sqlsrv + Composer (PHPMailer)
-FROM php:8.2-apache-bookworm
+FROM php:8.3-apache-bookworm
 
 ENV DEBIAN_FRONTEND=noninteractive \
     COMPOSER_ALLOW_SUPERUSER=1 \
